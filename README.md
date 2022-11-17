@@ -5,6 +5,7 @@
 ## Installation
 
 ```sh
+brew install cbindgen
 npm install react-native-helios
 ```
 

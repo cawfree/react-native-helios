@@ -17,6 +17,15 @@ const Helios = NativeModules.Helios
       }
     );
 
-export function multiply(a: number, b: number): Promise<number> {
-  return Helios.multiply(a, b);
+export type StartParams = {
+  readonly untrusted_rpc_url: string;
+  readonly consensus_rpc_url: string;
+};
+
+export function start(params: StartParams): Promise<void> {
+  return Helios.helios_start(params);
+}
+
+export function getBlockNumber(): Promise<string> {
+  return Helios.getBlockNumber();
 }

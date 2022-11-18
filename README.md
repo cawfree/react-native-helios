@@ -20,6 +20,8 @@ Where contemporary light clients merely _defer_ responsibility to a more powerfu
 
 Much like the proposed design of the [__Portal Network__](https://www.ethportal.net/), [`helios`](https://github.com/a16z/helios) need only once trust a potentially untrustworthy block header proof provider just _once_ in order to quickly synchronize with canonical Ethereum chain, verify it's validity, and transact as an independent network participant from there.
 
+[__❯ Learn more__](https://a16zcrypto.com/building-helios-ethereum-light-client/)
+
 ## `react-native-helios` ⚛️
 
 [`react-native-helios`](https://github.com/cawfree) is a [__React Native__](https://reactnative.dev) wrapper for [`helios`](https://github.com/a16z/helios).

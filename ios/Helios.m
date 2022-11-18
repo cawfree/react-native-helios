@@ -2,13 +2,18 @@
 
 @interface RCT_EXTERN_MODULE(Helios, NSObject)
 
-RCT_EXTERN_METHOD(multiply:(float)a withB:(float)b
-                 withResolver:(RCTPromiseResolveBlock)resolve
-                 withRejecter:(RCTPromiseRejectBlock)reject)
+// explanation about threading here: https://stackoverflow.com/a/50775641/3060739
+- (dispatch_queue_t)methodQueue
+{
+  return dispatch_get_main_queue();
+}
 
 + (BOOL)requiresMainQueueSetup
 {
-  return NO;
+  return YES;
 }
+
+RCT_EXTERN_METHOD(start:(NSDictionary*)params resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(getBlockNumber:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject)
 
 @end

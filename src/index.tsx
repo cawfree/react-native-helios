@@ -23,7 +23,7 @@ export type StartParams = {
 };
 
 export function start(params: StartParams): Promise<void> {
-  return Helios.helios_start(params);
+  return Helios.start(params);
 }
 
 export function getBlockNumber(): Promise<string> {

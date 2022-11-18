@@ -170,7 +170,7 @@ fs.writeFileSync(
   ].join('\n')
 );
 
-const header = path.resolve(helios, `${name}.h`);
+const header = path.resolve(helios, `lib${name}.h`);
 const library = path.resolve(helios, 'SwiftBridgeCore.swift');
 const toml = path.resolve(helios, 'Cargo.toml');
 

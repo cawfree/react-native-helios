@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { StyleSheet, View } from 'react-native';
-import { start } from 'react-native-helios';
+import { getBlockNumber, start } from 'react-native-helios';
 
 export default function App() {
   React.useEffect(
@@ -14,6 +14,9 @@ export default function App() {
             consensus_rpc_url: 'https://www.lightclientdata.org',
           });
           console.warn('Started!');
+
+          const blockNumber = await getBlockNumber();
+          console.warn(`Block number is: ${blockNumber}!`);
         } catch (e) {
           console.error(e);
         }

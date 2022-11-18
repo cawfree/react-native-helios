@@ -59,6 +59,30 @@ console.log(
 );
 ```
 
+## Building from source 🏗
+
+> __Note__ Right now we only support building via MacOS. More platforms will be supported in future!
+>
+> ⚠️ Currently `react-native-helios` only supports execution on a physical device. It will __not__ compile on the iOS simulator.
+
+1. Make sure you've installed [`rustup`](https://www.rust-lang.org/tools/install):
+
+```shell
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+2. Clone and build [`react-native-helios`](https://github.com/cawfree/react-native-helios):
+
+```shell
+git clone https://github.com/cawfree/react-native-helios
+cd react-native-helios
+yarn && yarn heliosup
+```
+
+Once this task has completed, the rust library dependencies will be compiled for iOS using [`cargo-lipo`](https://github.com/TimNN/cargo-lipo), a runtime-compatible bridge interface for the generated binaries will be exported by [`swift-bridge`](https://github.com/chinedufn/swift-bridge), and the [`example/`](./example) project's [__pods__](https://cocoapods.org/) directory will be populated with the new library binaries.
+
+3. Finally, open up the [`.xcworkspace`](./example/ios) and hit play ▶.
+
 ## License ✌️
 
 [__MIT__](./LICENSE)

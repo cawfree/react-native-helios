@@ -12,7 +12,7 @@ This reliance on third party ethereum providers is useful for developers, but ar
 
 ## Introducing [`helios`](https://github.com/a16z/helios)! 👋
 
-[__Helios__](https://github.com/a16z/helios) is an innovative new [__light client__](https://ethereum.org/en/developers/docs/nodes-and-clients/) for Ethereum which is minimal enough to run on mobile devices or even from within [__React Native__](https://reactnative.dev) applications. 
+[__Helios__](https://github.com/a16z/helios) is an innovative new [__light client__](https://ethereum.org/en/developers/docs/nodes-and-clients/) for Ethereum which is minimal enough to run on mobile devices or even from within [__React Native__](https://reactnative.dev) applications.
 
 The key property enabled by `helios`, compared to traditional light clients, is the level of trustlessness.
 
@@ -78,7 +78,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```shell
 git clone https://github.com/cawfree/react-native-helios
 cd react-native-helios
-yarn && yarn heliosup
+yarn heliosup
 ```
 
 Once this task has completed, the rust library dependencies will be compiled for iOS using [`cargo-lipo`](https://github.com/TimNN/cargo-lipo), a runtime-compatible bridge interface for the generated binaries will be exported by [`swift-bridge`](https://github.com/chinedufn/swift-bridge), and the [`example/`](./example) project's [__pods__](https://cocoapods.org/) directory will be populated with the new library binaries.

@@ -3756,7 +3756,7 @@ react-native-gradle-plugin@^0.70.3:
   integrity sha512-oOanj84fJEXUg9FoEAQomA8ISG+DVIrTZ3qF7m69VQUJyOGYyDZmPqKcjvRku4KXlEH6hWO9i4ACLzNBh8gC0A==
 
 react-native-helios@../:
-  version "0.1.0"
+  version "0.1.2"
 
 react-native@0.70.6:
   version "0.70.6"

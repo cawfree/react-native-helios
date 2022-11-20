@@ -22,7 +22,11 @@ const APPLE_TARGETS: Record<string, readonly string[]> = {
     'x86_64-apple-ios',
     'i386-apple-ios',
   ],
-  [RUST_VERSION_LATEST]: ['aarch64-apple-ios', 'x86_64-apple-ios'],
+  [RUST_VERSION_LATEST]: [
+    'aarch64-apple-ios',
+    'x86_64-apple-ios',
+    'aarch64-apple-ios-sim',
+  ],
 };
 
 const rust_version = RUST_VERSION_LATEST;
@@ -115,15 +119,12 @@ fs.writeFileSync(
     '    client.start().await.unwrap();',
     '',
     '    self.client = Some(client);',
-    '    println!("did allocate client!");',
     '  }',
     '',
     '  async fn helios_get_block_number(&mut self) -> String {',
     '    if let Some(client) = &self.client {',
-    '      println!("client is valid in get_block_number");',
     '      return client.get_block_number().await.unwrap().to_string();',
     '    }',
-    '    println!("client is not valid in get_block_number");',
     '    return (-1).to_string();',
     '  }',
     '',

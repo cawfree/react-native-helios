@@ -167,7 +167,7 @@ fs.writeFileSync(
     'THISDIR=$(dirname $0)',
     'cd $THISDIR',
     'export SWIFT_BRIDGE_OUT_DIR="$(pwd)/generated"',
-    'cargo lipo --release',
+    `cargo lipo --release --targets ${APPLE_TARGETS[rust_version].join(',')}`,
   ].join('\n')
 );
 

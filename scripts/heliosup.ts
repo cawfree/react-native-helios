@@ -171,8 +171,11 @@ fs.writeFileSync(
     'cd $THISDIR',
     'export SWIFT_BRIDGE_OUT_DIR="$(pwd)/generated"',
     '',
-    //`cargo lipo --release --targets ${APPLE_TARGETS[rust_version].join(',')}`,
-    'cargo build --target aarch64-apple-ios-sim',
+
+    // https://gist.github.com/surpher/bbf88e191e9d1f01ab2e2bbb85f9b528#universal-ios-arm64-mobile-device--x86_64-simulator
+    'cargo lipo --release',
+    // https://gist.github.com/surpher/bbf88e191e9d1f01ab2e2bbb85f9b528#ios-simulator-arm64
+    'cargo build -Z build-std --target aarch64-apple-ios-sim --release',
   ].join('\n')
 );
 

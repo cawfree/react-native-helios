@@ -168,7 +168,8 @@ fs.writeFileSync(
     'cd $THISDIR',
     'export SWIFT_BRIDGE_OUT_DIR="$(pwd)/generated"',
     '',
-    `cargo lipo --release --targets ${APPLE_TARGETS[rust_version].join(',')}`,
+    //`cargo lipo --release --targets ${APPLE_TARGETS[rust_version].join(',')}`,
+    'cargo build --target aarch64-apple-ios-sim',
   ].join('\n')
 );
 
@@ -183,6 +184,17 @@ fs.writeFileSync(
       .readFileSync(toml, 'utf-8')
       .split('\n')
       .flatMap((str) => {
+        if (str === '[patch.crates-io]') {
+          return [
+            str,
+            //'openssl-src = { version = "300", optional = true }',
+            //'openssl-src = { git = "https://github.com/sfackler/rust-openssl", version = "=300.0.11+3.0.7", optional = true }',
+            //'openssl-sys = { git = "https://github.com/ncitron/ethers-rs", branch = "fix-retry" }',
+          ];
+        }
+
+        //'openssl-src = { version = "300" }',
+
         if (str === '[dependencies]') {
           return [
             '[build-dependencies]',
@@ -190,7 +202,7 @@ fs.writeFileSync(
             '',
             str,
             'swift-bridge = {version = "0.1", features = ["async"]}',
-
+            '',
             // TODO: Check these are still required?
             'futures = "0.3.23"',
             'eyre = "0.6.8"',

@@ -63,11 +63,14 @@ child_process.execSync('cargo install cargo-lipo', {
 });
 
 const name = 'helios';
-const checksum = '4c72344b55991b6296ccbb12b3c9e3ad634d593e';
+const helios_checksum = '4c72344b55991b6296ccbb12b3c9e3ad634d593e';
 
 const helios = path.resolve(build, name);
 
-child_process.execSync(`git reset --hard ${checksum}`, { stdio, cwd: helios });
+child_process.execSync(`git reset --hard ${helios_checksum}`, {
+  stdio,
+  cwd: helios,
+});
 
 const src = path.resolve(helios, 'src');
 const lib_rs = path.resolve(src, 'lib.rs');
@@ -177,6 +180,37 @@ const header = path.resolve(helios, `lib${name}.h`);
 const library = path.resolve(helios, 'SwiftBridgeCore.swift');
 const toml = path.resolve(helios, 'Cargo.toml');
 
+const rust_openssl = path.resolve('build', 'openssl');
+
+child_process.execSync(
+  `git clone https://github.com/sfackler/rust-openssl ${rust_openssl}`,
+  { stdio }
+);
+
+const openssl_sys = path.resolve(rust_openssl, 'openssl-sys');
+const openssl_sys_checksum = 'b30313a9775ed861ce9456745952e3012e5602ea';
+
+child_process.execSync(`git checkout ${openssl_sys_checksum}`, {
+  stdio,
+  cwd: openssl_sys,
+});
+
+const openssl_sys_toml = path.resolve(openssl_sys, 'Cargo.toml');
+
+fs.writeFileSync(
+  openssl_sys_toml,
+  fs
+    .readFileSync(openssl_sys_toml, 'utf-8')
+    .split('\n')
+    .flatMap((e) => {
+      if (e.startsWith('openssl-src'))
+        return ['openssl-src = { version = "300", optional = true }'];
+
+      return [e];
+    })
+    .join('\n')
+);
+
 fs.writeFileSync(
   toml,
   [
@@ -185,17 +219,10 @@ fs.writeFileSync(
       .split('\n')
       .flatMap((str) => {
         if (str === '[patch.crates-io]') {
-          return [
-            str,
-            //'openssl-src = { version = "300", optional = true }',
-            //'openssl-src = { git = "https://github.com/sfackler/rust-openssl", version = "=300.0.11+3.0.7", optional = true }',
-            //'openssl-sys = { git = "https://github.com/ncitron/ethers-rs", branch = "fix-retry" }',
-          ];
-        }
-
-        //'openssl-src = { version = "300" }',
-
-        if (str === '[dependencies]') {
+          // HACK: Override to use a version of OpenSSL which is
+          //       compatible with the iOS Simulator.
+          return [str, `openssl-sys = { path = "${openssl_sys}" }`];
+        } else if (str === '[dependencies]') {
           return [
             '[build-dependencies]',
             'swift-bridge-build = "0.1"',
@@ -210,7 +237,7 @@ fs.writeFileSync(
         } else if (str === '[package]') {
           return [str, 'build = "build.rs"'];
         }
-        return str;
+        return [str];
       }),
     '[lib]',
     `name = "${name}"`,

@@ -299,10 +299,20 @@ fs.writeFileSync(header, result_h);
 
 const ios = path.resolve('ios');
 
+// Physical
+//const staticLib = path.resolve(
+//  helios,
+//  'target',
+//  'universal',
+//  'release',
+//  `lib${name}.a`
+//);
+
+// Simulator
 const staticLib = path.resolve(
   helios,
   'target',
-  'universal',
+  'aarch64-apple-ios-sim',
   'release',
   `lib${name}.a`
 );

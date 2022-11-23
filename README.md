@@ -2,15 +2,15 @@
 
 > ⚠️ Currently `react-native-helios` only supports execution on iOS devices and simulators.
 
-Throughout the majority of [__Ethereum__](https://ethereum.org/en/)'s history, frontend applications have been forced to rely upon centralized interfaces like [__Infura__](https://www.infura.io/) to access the decentralized network. This is because to be a meaningful participant in the decentralized network, like an entity capable of submitting transactions or maintaining a verifiable history the network state, the protocol's current design [__demands high device specifications__](https://www.youtube.com/watch?v=0stc9jnQLXA) that are insurmountable for even high-end mobile devices.
+Throughout the majority of [__Ethereum__](https://ethereum.org/en/)'s history, frontend applications have been forced to rely upon centralized interfaces like [__Infura__](https://www.infura.io/) to access the decentralized network. This is because to be a meaningful participant in the decentralized network, like an entity capable of submitting transactions or maintaining a verifiable history the network state, the protocol's current design [__demands high device specifications__](https://youtu.be/0stc9jnQLXA?t=136) that are insurmountable for even high-end mobile devices.
 
 This reliance on third party ethereum providers is useful for developers, but are subject to the downfalls of all centralized systems; susceptibility to downtime and subservience to censorship and financialization.
 
 > ⚠️ __Decentralization is incredibly important!__
 >
-> At the time of writing, [__DeFi__](https://ethereum.org/en/defi) frontends are threatened into enforcing censorship upon honest users, miners are incentivised to censor global transactions in compliance with the US-based [__OFAC__](https://youtu.be/Ytaa_5liwMA?t=3659), and the relative ease of centralized interfaces compared to truly decentralized equivalents lure users into [__extreme losses due to excessive trust__](https://twitter.com/JG_Nuke/status/1591070331988774913).
+> At the time of writing, [__DeFi__](https://ethereum.org/en/defi) frontends are threatened into enforcing censorship upon honest users, miners are incentivised to censor global transactions in compliance with the US-based [__OFAC__](https://youtu.be/Ytaa_5liwMA?t=4429), and the relative ease of centralized interfaces compared to truly decentralized equivalents lure users into [__extreme losses due to excessive trust__](https://twitter.com/JG_Nuke/status/1591070331988774913).
 >
-> The decentralized future is __inclusive of every human__, __objective__ and __credibly neutral__.
+> The decentralized future is __inclusive of every human__, is __objective__ and __credibly neutral__.
 
 ## Introducing [`helios`](https://github.com/a16z/helios)! 👋
 

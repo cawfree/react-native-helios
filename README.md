@@ -6,8 +6,6 @@ Throughout the majority of [__Ethereum__](https://ethereum.org/en/)'s history, f
 
 This reliance on third party infrastructure typically aided the delivery of ethereum frontend applications, but is subject to the downfalls of all centralized systems; susceptibility to downtime and subservience to censorship and financialization.
 
-The decentralized future is __inclusive of every human__, is __objective__ and __credibly neutral__.
-
 ## Introducing [`helios`](https://github.com/a16z/helios)! 👋
 
 [__Helios__](https://github.com/a16z/helios) is an innovative new [__light client__](https://ethereum.org/en/developers/docs/nodes-and-clients/) for Ethereum which is minimal enough to run on mobile devices or even from within [__React Native__](https://reactnative.dev) applications.

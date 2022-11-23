@@ -1,14 +1,16 @@
 # react-native-helios
 
+> ⚠️ Currently `react-native-helios` only supports execution on iOS devices and simulators.
+
 Throughout the majority of [__Ethereum__](https://ethereum.org/en/)'s history, frontend applications have been forced to rely upon centralized interfaces like [__Infura__](https://www.infura.io/) to access the decentralized network. This is because to be a meaningful participant in the decentralized network, like an entity capable of submitting transactions or maintaining a verifiable history the network state, the protocol's current design [__demands high device specifications__](https://www.youtube.com/watch?v=0stc9jnQLXA) that are insurmountable for even high-end mobile devices.
 
-This reliance on third party ethereum providers is useful for developers, but are subject to the downfalls of all centralized systems; susceptibility to downtime, subservience to censorship and financialization.
+This reliance on third party ethereum providers is useful for developers, but are subject to the downfalls of all centralized systems; susceptibility to downtime and subservience to censorship and financialization.
 
 > ⚠️ __Decentralization is incredibly important!__
 >
->At the time of writing, [__DeFi__](https://ethereum.org/en/defi) frontends are threatend into enforcing censorship on honest users, miners are incentivised to censor global transactions in compliance with the US-based [__OFAC__](https://youtu.be/Ytaa_5liwMA?t=3659), and the relative ease of centralized interfaces compared to truly decentralized equivalents lure users into [__extreme losses due to excessive trust__](https://twitter.com/JG_Nuke/status/1591070331988774913).
+> At the time of writing, [__DeFi__](https://ethereum.org/en/defi) frontends are threatened into enforcing censorship upon honest users, miners are incentivised to censor global transactions in compliance with the US-based [__OFAC__](https://youtu.be/Ytaa_5liwMA?t=3659), and the relative ease of centralized interfaces compared to truly decentralized equivalents lure users into [__extreme losses due to excessive trust__](https://twitter.com/JG_Nuke/status/1591070331988774913).
 >
-> The decentralized future is __inclusive of every human__, is __objective__ and __credibly neutral__. Smart contracts can enforce self-regulation, and the natural properties of mathematics [__should be applied for public good__](https://www.coindesk.com/layer2/2022/08/09/what-the-tornado-cash-sanction-means-for-privacy-coins/).
+> The decentralized future is __inclusive of every human__, __objective__ and __credibly neutral__.
 
 ## Introducing [`helios`](https://github.com/a16z/helios)! 👋
 
@@ -63,9 +65,7 @@ console.log(
 
 ## Building from source 🏗
 
-> __Note__ Right now we only support building via MacOS. More platforms will be supported in future!
->
-> ⚠️ Currently `react-native-helios` only supports execution on a physical device. It will __not__ compile on the iOS simulator.
+> __Note__ Currently we only support compiling on __Apple Silicon__-based Macs.
 
 1. Make sure you've installed [`rustup`](https://www.rust-lang.org/tools/install):
 
@@ -81,7 +81,7 @@ cd react-native-helios
 yarn && yarn heliosup
 ```
 
-Once this task has completed, the rust library dependencies will be compiled for iOS using [`cargo-lipo`](https://github.com/TimNN/cargo-lipo), a runtime-compatible bridge interface for the generated binaries will be exported by [`swift-bridge`](https://github.com/chinedufn/swift-bridge), and the [`example/`](./example) project's [__pods__](https://cocoapods.org/) directory will be populated with the new library binaries.
+Once this task has completed, the rust library dependencies will be compiled for iOS using [`cargo-lipo`](https://github.com/TimNN/cargo-lipo), a runtime-compatible bridge interface for the generated binaries will be exported by [`swift-bridge`](https://github.com/chinedufn/swift-bridge), and the [`example/`](./example) project's [__pods__](https://cocoapods.org/) directory will be populated with the new library binaries. To support the `arm64` architecture for both simulated and physical iOS devices, the target-specific static libraries are repackaged into an [`XCFramework`](https://medium.com/trueengineering/xcode-and-xcframeworks-new-format-of-packing-frameworks-ca15db2381d3).
 
 3. Finally, open up the [`example .xcworkspace`](./example/ios) and hit play ▶.
 

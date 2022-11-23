@@ -22,7 +22,11 @@ const APPLE_TARGETS: Record<string, readonly string[]> = {
     'x86_64-apple-ios',
     'i386-apple-ios',
   ],
-  [RUST_VERSION_LATEST]: ['aarch64-apple-ios', 'x86_64-apple-ios'],
+  [RUST_VERSION_LATEST]: [
+    'aarch64-apple-ios',
+    'x86_64-apple-ios',
+    'aarch64-apple-ios-sim',
+  ],
 };
 
 const rust_version = RUST_VERSION_LATEST;
@@ -59,11 +63,14 @@ child_process.execSync('cargo install cargo-lipo', {
 });
 
 const name = 'helios';
-const checksum = '4c72344b55991b6296ccbb12b3c9e3ad634d593e';
+const helios_checksum = '4c72344b55991b6296ccbb12b3c9e3ad634d593e';
 
 const helios = path.resolve(build, name);
 
-child_process.execSync(`git reset --hard ${checksum}`, { stdio, cwd: helios });
+child_process.execSync(`git reset --hard ${helios_checksum}`, {
+  stdio,
+  cwd: helios,
+});
 
 const src = path.resolve(helios, 'src');
 const lib_rs = path.resolve(src, 'lib.rs');
@@ -115,15 +122,12 @@ fs.writeFileSync(
     '    client.start().await.unwrap();',
     '',
     '    self.client = Some(client);',
-    '    println!("did allocate client!");',
     '  }',
     '',
     '  async fn helios_get_block_number(&mut self) -> String {',
     '    if let Some(client) = &self.client {',
-    '      println!("client is valid in get_block_number");',
     '      return client.get_block_number().await.unwrap().to_string();',
     '    }',
-    '    println!("client is not valid in get_block_number");',
     '    return (-1).to_string();',
     '  }',
     '',
@@ -166,13 +170,49 @@ fs.writeFileSync(
     'THISDIR=$(dirname $0)',
     'cd $THISDIR',
     'export SWIFT_BRIDGE_OUT_DIR="$(pwd)/generated"',
+    '',
+
+    // https://gist.github.com/surpher/bbf88e191e9d1f01ab2e2bbb85f9b528#universal-ios-arm64-mobile-device--x86_64-simulator
     'cargo lipo --release',
+    // https://gist.github.com/surpher/bbf88e191e9d1f01ab2e2bbb85f9b528#ios-simulator-arm64
+    'cargo build -Z build-std --target aarch64-apple-ios-sim --release',
   ].join('\n')
 );
 
 const header = path.resolve(helios, `lib${name}.h`);
 const library = path.resolve(helios, 'SwiftBridgeCore.swift');
 const toml = path.resolve(helios, 'Cargo.toml');
+
+const rust_openssl = path.resolve('build', 'openssl');
+
+child_process.execSync(
+  `git clone https://github.com/sfackler/rust-openssl ${rust_openssl}`,
+  { stdio }
+);
+
+const openssl_sys = path.resolve(rust_openssl, 'openssl-sys');
+const openssl_sys_checksum = 'b30313a9775ed861ce9456745952e3012e5602ea';
+
+child_process.execSync(`git checkout ${openssl_sys_checksum}`, {
+  stdio,
+  cwd: openssl_sys,
+});
+
+const openssl_sys_toml = path.resolve(openssl_sys, 'Cargo.toml');
+
+fs.writeFileSync(
+  openssl_sys_toml,
+  fs
+    .readFileSync(openssl_sys_toml, 'utf-8')
+    .split('\n')
+    .flatMap((e) => {
+      if (e.startsWith('openssl-src'))
+        return ['openssl-src = { version = "300", optional = true }'];
+
+      return [e];
+    })
+    .join('\n')
+);
 
 fs.writeFileSync(
   toml,
@@ -181,14 +221,18 @@ fs.writeFileSync(
       .readFileSync(toml, 'utf-8')
       .split('\n')
       .flatMap((str) => {
-        if (str === '[dependencies]') {
+        if (str === '[patch.crates-io]') {
+          // HACK: Override to use a version of OpenSSL which is
+          //       compatible with the iOS Simulator.
+          return [str, `openssl-sys = { path = "${openssl_sys}" }`];
+        } else if (str === '[dependencies]') {
           return [
             '[build-dependencies]',
             'swift-bridge-build = "0.1"',
             '',
             str,
             'swift-bridge = {version = "0.1", features = ["async"]}',
-
+            '',
             // TODO: Check these are still required?
             'futures = "0.3.23"',
             'eyre = "0.6.8"',
@@ -196,7 +240,7 @@ fs.writeFileSync(
         } else if (str === '[package]') {
           return [str, 'build = "build.rs"'];
         }
-        return str;
+        return [str];
       }),
     '[lib]',
     `name = "${name}"`,
@@ -253,19 +297,46 @@ ${fs
 
 fs.writeFileSync(header, result_h);
 
-const ios = path.resolve('ios');
-
-const staticLib = path.resolve(
+const deviceStaticLib = path.resolve(
   helios,
   'target',
-  'universal',
+  'aarch64-apple-ios',
   'release',
   `lib${name}.a`
+); /* simulator */
+
+const simulatorStaticlib = path.resolve(
+  helios,
+  'target',
+  'aarch64-apple-ios-sim',
+  'release',
+  `lib${name}.a`
+); /* simulator */
+
+const appleStaticLibs = [deviceStaticLib, simulatorStaticlib];
+
+const ios = path.resolve('ios');
+
+const xcframework = path.resolve(helios, `lib${name}.xcframework`);
+
+child_process.execSync(
+  `xcodebuild -create-xcframework ${appleStaticLibs
+    .map((e) => `-library ${e} -headers ${header}`)
+    .join(' ')} -output ${xcframework}`,
+  { stdio, cwd: helios }
 );
 
-fs.copyFileSync(header, path.resolve(ios, path.basename(header)));
-fs.copyFileSync(staticLib, path.resolve(ios, path.basename(staticLib)));
+const target_xcworkspace = path.resolve(ios, path.basename(xcframework));
+
+if (fs.existsSync(target_xcworkspace))
+  fs.rmSync(target_xcworkspace, { recursive: true });
+
+fs.renameSync(xcframework, target_xcworkspace);
+
 fs.copyFileSync(library, path.resolve(ios, path.basename(library)));
+
+// TODO: maybe it's unncessary to include headers within the framework declaration
+fs.copyFileSync(header, path.resolve(ios, path.basename(header)));
 
 child_process.execSync('rm -rf node_modules ; rm yarn.lock ; yarn add ../', {
   stdio,

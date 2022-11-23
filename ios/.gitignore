@@ -1,3 +1,4 @@
 libhelios.a
 libhelios.h
+libhelios.xcframework/
 SwiftBridgeCore.swift

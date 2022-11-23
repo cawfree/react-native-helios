@@ -4,7 +4,7 @@
 
 Throughout the majority of [__Ethereum__](https://ethereum.org/en/)'s history, frontend applications have been forced to rely upon centralized interfaces like [__Infura__](https://www.infura.io/) to access the decentralized network. This is because to be a meaningful participant in the decentralized network, like an entity capable of submitting transactions or maintaining a verifiable history the network state, the protocol's current design [__demands high device specifications__](https://youtu.be/0stc9jnQLXA?t=136) that are insurmountable for even high-end mobile devices.
 
-This reliance on third party ethereum providers is useful for developers, but are subject to the downfalls of all centralized systems; susceptibility to downtime and subservience to censorship and financialization.
+This reliance on third party infrastructure typically aided the delivery of ethereum frontend applications, but is subject to the downfalls of all centralized systems; susceptibility to downtime and subservience to censorship and financialization.
 
 The decentralized future is __inclusive of every human__, is __objective__ and __credibly neutral__.
 

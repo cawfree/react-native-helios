@@ -22,7 +22,11 @@ Much like the proposed design of the [__Portal Network__](https://www.ethportal.
 
 ## `react-native-helios` ⚛️
 
-[`react-native-helios`](https://github.com/cawfree) is a [__React Native__](https://reactnative.dev) wrapper for [`helios`](https://github.com/a16z/helios).
+[`react-native-helios`](https://github.com/cawfree) is a [__React Native__](https://reactnative.dev) wrapper for [`helios`](https://github.com/a16z/helios):
+
+```sh
+yarn add react-native-helios
+```
 
 By leveraging [`swift-bridge`](https://github.com/chinedufn/swift-bridge), we can automatically generate an [__Swift__](https://developer.apple.com/swift/)-compatible [__Native Module__](https://reactnative.dev/docs/native-modules-intro) which bridges into the original [__Rust__](https://www.rust-lang.org/) client and executes this on your mobile device.
 
@@ -81,7 +85,7 @@ yarn && yarn heliosup
 >
 > To support the `arm64` architecture for both simulated and physical iOS devices, the target-specific static libraries are repackaged into an [`XCFramework`](https://medium.com/trueengineering/xcode-and-xcframeworks-new-format-of-packing-frameworks-ca15db2381d3).
 
-3. Finally, open up the [`example .xcworkspace`](./example/ios) and hit play ▶.
+3. Finally, open up [`example.xcworkspace`](./example/ios) and hit play ▶.
 
 ## License ✌️
 

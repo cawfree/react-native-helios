@@ -65,7 +65,7 @@ console.log(
 
 ## Building from source 🏗
 
-> __Note__ Currently we only support compiling on __Apple Silicon__-based Macs.
+> __Note__ Currently, [`react-native-helios`](https://github.com/cawfree/react-native-helios) may only be compiled on Apple Silicon based Macs.
 
 1. Make sure you've installed [`rustup`](https://www.rust-lang.org/tools/install):
 

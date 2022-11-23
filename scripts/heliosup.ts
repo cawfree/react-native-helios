@@ -297,29 +297,46 @@ ${fs
 
 fs.writeFileSync(header, result_h);
 
-const ios = path.resolve('ios');
+const deviceStaticLib = path.resolve(
+  helios,
+  'target',
+  'aarch64-apple-ios',
+  'release',
+  `lib${name}.a`
+); /* simulator */
 
-// Physical
-//const staticLib = path.resolve(
-//  helios,
-//  'target',
-//  'universal',
-//  'release',
-//  `lib${name}.a`
-//);
-
-// Simulator
-const staticLib = path.resolve(
+const simulatorStaticlib = path.resolve(
   helios,
   'target',
   'aarch64-apple-ios-sim',
   'release',
   `lib${name}.a`
+); /* simulator */
+
+const appleStaticLibs = [deviceStaticLib, simulatorStaticlib];
+
+const ios = path.resolve('ios');
+
+const xcframework = path.resolve(helios, `lib${name}.xcframework`);
+
+child_process.execSync(
+  `xcodebuild -create-xcframework ${appleStaticLibs
+    .map((e) => `-library ${e} -headers ${header}`)
+    .join(' ')} -output ${xcframework}`,
+  { stdio, cwd: helios }
 );
 
-fs.copyFileSync(header, path.resolve(ios, path.basename(header)));
-fs.copyFileSync(staticLib, path.resolve(ios, path.basename(staticLib)));
+const target_xcworkspace = path.resolve(ios, path.basename(xcframework));
+
+if (fs.existsSync(target_xcworkspace))
+  fs.rmSync(target_xcworkspace, { recursive: true });
+
+fs.renameSync(xcframework, target_xcworkspace);
+
 fs.copyFileSync(library, path.resolve(ios, path.basename(library)));
+
+// TODO: maybe it's unncessary to include headers within the framework declaration
+fs.copyFileSync(header, path.resolve(ios, path.basename(header)));
 
 child_process.execSync('rm -rf node_modules ; rm yarn.lock ; yarn add ../', {
   stdio,

@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.platforms    = { :ios => "9.0" }
   s.source       = { :git => "https://github.com/cawfree/react-native-helios.git", :tag => "#{s.version}" }
 
-  s.vendored_libraries = 'ios/libhelios.a'
+  s.vendored_frameworks = 'ios/libhelios.xcframework'
   s.source_files = "ios/**/*.{h,c,m,swift}"
   s.requires_arc = true
 

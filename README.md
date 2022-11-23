@@ -6,11 +6,7 @@ Throughout the majority of [__Ethereum__](https://ethereum.org/en/)'s history, f
 
 This reliance on third party ethereum providers is useful for developers, but are subject to the downfalls of all centralized systems; susceptibility to downtime and subservience to censorship and financialization.
 
-> __Decentralization is incredibly important!__
->
-> At the time of writing, [__DeFi__](https://ethereum.org/en/defi) frontends are threatened into enforcing censorship upon honest users, miners are incentivised to censor global transactions in compliance with the US-based [__OFAC__](https://youtu.be/Ytaa_5liwMA?t=4429), and the relative ease of centralized interfaces compared to truly decentralized equivalents lure users into [__extreme losses due to excessive trust__](https://twitter.com/JG_Nuke/status/1591070331988774913).
->
-> The decentralized future is __inclusive of every human__, is __objective__ and __credibly neutral__.
+The decentralized future is __inclusive of every human__, is __objective__ and __credibly neutral__.
 
 ## Introducing [`helios`](https://github.com/a16z/helios)! 👋
 

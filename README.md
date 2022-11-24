@@ -4,7 +4,7 @@
 
 Throughout the majority of [__Ethereum__](https://ethereum.org/en/)'s history, frontend applications have been forced to rely upon centralized interfaces like [__Infura__](https://www.infura.io/) to access the decentralized network. This is because to be a meaningful participant in the decentralized network, such as an entity capable of submitting transactions or maintaining a verifiable history the network state, the protocol's current design [__demands high device specifications__](https://youtu.be/0stc9jnQLXA?t=136) that are insurmountable for even top-end mobile devices.
 
-This reliance on third party infrastructure typically aided the delivery of ethereum frontend applications, but is subject to the downfalls of all centralized systems; susceptibility to downtime and subservience to censorship and financialization.
+This reliance on third party infrastructure typically aided the delivery of ethereum frontend applications, but is subject to the pitfalls of all centralized systems; susceptibility to downtime and subservience to censorship and monetization.
 
 ## Introducing [`helios`](https://github.com/a16z/helios)! 👋
 

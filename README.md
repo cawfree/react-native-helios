@@ -14,7 +14,7 @@ The key property enabled by `helios`, compared to traditional light clients, is 
 
 Where contemporary light clients merely _defer_ responsibility to a more powerful node, [`helios`](https://github.com/a16z/helios) is capable of maintaining the state of the decentralized network autonomously by _inferring_ the validity of the chain header by assessing the validity of the proof sequence that constitutes the canonical chain.
 
-Much like the proposed design of the [__Portal Network__](https://www.ethportal.net/), [`helios`](https://github.com/a16z/helios) need only once trust a potentially untrustworthy block header proof provider just _once_ in order to quickly synchronize with canonical Ethereum chain, verify it's validity, and transact as an independent network participant.
+Much like the proposed design of the [__Portal Network__](https://www.ethportal.net/), [`helios`](https://github.com/a16z/helios) need only trust a potentially untrustworthy block header proof provider just _once_ in order to quickly synchronize with canonical Ethereum chain, verify it's validity, and transact as an independent network participant.
 
 [__❯ Learn more__](https://a16zcrypto.com/building-helios-ethereum-light-client/)
 

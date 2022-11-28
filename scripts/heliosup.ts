@@ -8,6 +8,10 @@ const helios_checksum = '4c72344b55991b6296ccbb12b3c9e3ad634d593e';
 const openssl_sys_checksum = 'b30313a9775ed861ce9456745952e3012e5602ea';
 const stdio = 'inherit';
 const build = path.resolve('build');
+const ios = path.resolve('ios');
+
+const example = path.resolve('example');
+const example_ios = path.resolve(example, 'ios');
 
 const helios = path.resolve(build, name);
 const helios_toml = path.resolve(helios, 'Cargo.toml');
@@ -69,6 +73,7 @@ abstract class HeliosFactory {
   protected abstract customizeCargo(
     current: readonly string[]
   ): readonly string[];
+  protected abstract prepareBuildWorkspace(): void;
   protected abstract getBuildScriptSource(): readonly string[];
   protected abstract handleBuildCompletion(): void;
 
@@ -140,6 +145,8 @@ abstract class HeliosFactory {
       ).join('\n')
     );
 
+    this.prepareBuildWorkspace();
+
     const build_sh = path.resolve(helios, 'build.sh');
     fs.writeFileSync(build_sh, this.getBuildScriptSource().join('\n'));
 
@@ -153,24 +160,6 @@ abstract class HeliosFactory {
 }
 
 class AppleHeliosFactory extends HeliosFactory {
-  private static preparePackageBuild() {
-    fs.writeFileSync(
-      path.resolve(helios, 'build.rs'),
-      [
-        'use std::path::PathBuf;',
-        '',
-        'fn main() {',
-        '  let out_dir = PathBuf::from("./generated");',
-        '  let bridges = vec!["src/lib.rs"];',
-        '  for path in &bridges {',
-        '    println!("cargo:rerun-if-changed={}", path);',
-        '  }',
-        '  swift_bridge_build::parse_bridges(bridges)',
-        '    .write_all_concatenated(out_dir, env!("CARGO_PKG_NAME"));',
-        '}',
-      ].join('\n')
-    );
-  }
   constructor() {
     super();
   }
@@ -260,8 +249,26 @@ class AppleHeliosFactory extends HeliosFactory {
     });
   }
 
+  protected prepareBuildWorkspace() {
+    fs.writeFileSync(
+      path.resolve(helios, 'build.rs'),
+      [
+        'use std::path::PathBuf;',
+        '',
+        'fn main() {',
+        '  let out_dir = PathBuf::from("./generated");',
+        '  let bridges = vec!["src/lib.rs"];',
+        '  for path in &bridges {',
+        '    println!("cargo:rerun-if-changed={}", path);',
+        '  }',
+        '  swift_bridge_build::parse_bridges(bridges)',
+        '    .write_all_concatenated(out_dir, env!("CARGO_PKG_NAME"));',
+        '}',
+      ].join('\n')
+    );
+  }
+
   protected getBuildScriptSource(): readonly string[] {
-    AppleHeliosFactory.preparePackageBuild();
     return [
       '#!/bin/bash',
       '',
@@ -344,9 +351,6 @@ ${fs
     );
 
     const appleStaticLibs = [deviceStaticLib, simulatorStaticlib];
-
-    const ios = path.resolve('ios');
-
     const xcframework = path.resolve(helios, `lib${name}.xcframework`);
 
     child_process.execSync(
@@ -364,8 +368,6 @@ ${fs
     fs.renameSync(xcframework, target_xcworkspace);
 
     fs.copyFileSync(library, path.resolve(ios, path.basename(library)));
-
-    // TODO: maybe it's unncessary to include headers within the framework declaration
     fs.copyFileSync(header, path.resolve(ios, path.basename(header)));
   }
 }
@@ -394,6 +396,9 @@ class AndroidHeliosFactory extends HeliosFactory {
   protected customizeCargo(current: readonly string[]): readonly string[] {
     throw new Error('[customizeCargo]: Method stub.');
   }
+  protected prepareBuildWorkspace() {
+    throw new Error('[prepareBuildWorkspace]: Method stub.');
+  }
   protected getBuildScriptSource(): readonly string[] {
     throw new Error('[getBuildScriptSource]: Method stub.');
   }
@@ -411,14 +416,14 @@ void (async () => {
       'rm -rf node_modules ; rm yarn.lock ; yarn add ../',
       {
         stdio,
-        cwd: path.resolve('example'),
+        cwd: example,
       }
     );
 
     // Ensure pods are up to date.
     child_process.execSync('pod install', {
       stdio,
-      cwd: path.resolve('example', 'ios'),
+      cwd: example_ios,
     });
   } catch (e) {
     console.error(e);

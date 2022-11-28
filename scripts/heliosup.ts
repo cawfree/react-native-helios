@@ -163,7 +163,7 @@ class AppleHeliosFactory extends HeliosFactory {
     super();
   }
   protected getTargets(): readonly string[] {
-    return ['aarch64-apple-ios', 'x86_64-apple-ios', 'aarch64-apple-ios-sim'];
+    return ['aarch64-apple-ios', 'aarch64-apple-ios-sim'];
   }
   protected getCargoDependencies(): readonly string[] {
     return ['cargo-lipo'];
@@ -333,23 +333,11 @@ ${fs
 
     fs.writeFileSync(header, result_h);
 
-    const deviceStaticLib = path.resolve(
-      helios,
-      'target',
-      'aarch64-apple-ios',
-      'release',
-      `lib${name}.a`
+    // TODO: Before we were excluding x86_64; verify builds are successful.
+    const appleStaticLibs = this.getTargets().map((target) =>
+      path.resolve(helios, 'target', target, 'release', `lib${name}.a`)
     );
 
-    const simulatorStaticlib = path.resolve(
-      helios,
-      'target',
-      'aarch64-apple-ios-sim',
-      'release',
-      `lib${name}.a`
-    );
-
-    const appleStaticLibs = [deviceStaticLib, simulatorStaticlib];
     const xcframework = path.resolve(helios, `lib${name}.xcframework`);
 
     child_process.execSync(
@@ -482,8 +470,8 @@ const onFinish = () => {
 
 void (async () => {
   try {
-    //new AppleHeliosFactory().compile();
-    new AndroidHeliosFactory().compile();
+    new AppleHeliosFactory().compile();
+    //new AndroidHeliosFactory().compile();
 
     onFinish();
   } catch (e) {

@@ -186,7 +186,6 @@ class AppleHeliosFactory extends HeliosFactory {
       '    fn new() -> RustApp;',
       '',
       '    async fn helios_start(&mut self, untrusted_rpc_url: String, consensus_rpc_url: String);',
-      '    async fn helios_get_block_number(&mut self) -> String;',
       '  }',
       '}',
       '',

@@ -112,11 +112,6 @@ abstract class HeliosFactory {
     HeliosFactory.checkoutHelios();
     HeliosFactory.checkoutOpenSsl();
 
-    const src = path.resolve(helios, 'src');
-    const lib_rs = path.resolve(src, 'lib.rs');
-
-    fs.writeFileSync(lib_rs, this.getLibrarySource().join('\n'));
-
     fs.writeFileSync(
       helios_toml,
       [
@@ -149,6 +144,10 @@ abstract class HeliosFactory {
 
     const build_sh = path.resolve(helios, 'build.sh');
     fs.writeFileSync(build_sh, this.getBuildScriptSource().join('\n'));
+
+    const src = path.resolve(helios, 'src');
+    const lib_rs = path.resolve(src, 'lib.rs');
+    fs.writeFileSync(lib_rs, this.getLibrarySource().join('\n'));
 
     child_process.execSync(`chmod +x ${build_sh}`, { stdio, cwd: helios });
     child_process.execSync(build_sh, { stdio, cwd: helios });
@@ -387,44 +386,106 @@ class AndroidHeliosFactory extends HeliosFactory {
   protected getCargoDependencies(): readonly string[] {
     return ['cargo-ndk'];
   }
-  protected getLibrarySource(): readonly string[] {
-    throw new Error('[getLibrarySource]: Method stub.');
+  protected getBuildScriptSource(): readonly string[] {
+    return [
+      '#!/usr/bin/env bash',
+      '# set the version to use the library',
+      // TODO: What's an appropriate minVersion?
+      //'min_ver=22',
+      '',
+      //...this.getTargets().map(
+      //  (target) =>
+      //    `cargo ndk --target ${target} --android-platform \${min_ver} -- build --release`
+      //),
+      ...this.getTargets().map(
+        (target) => `cargo ndk --target ${target} -- build --release`
+      ),
+      //'',
+      //'# moving libraries to the android project',
+      //'jniLibs=../android/rusty-android/rusty-android-lib/src/main/jniLibs',
+      //`libName=lib${name}.so`,
+      //'',
+      //'rm -rf ${jniLibs}',
+      //'',
+      //'mkdir ${jniLibs}',
+      //'mkdir ${jniLibs}/arm64-v8a',
+      //'mkdir ${jniLibs}/armeabi-v7a',
+      //'mkdir ${jniLibs}/x86',
+      //'mkdir ${jniLibs}/x86_64',
+      //'',
+      //'cp target/aarch64-linux-android/release/${libName} ${jniLibs}/arm64-v8a/${libName}',
+      //'cp target/armv7-linux-androideabi/release/${libName} ${jniLibs}/armeabi-v7a/${libName}',
+      //'cp target/i686-linux-android/release/${libName} ${jniLibs}/x86/${libName}',
+      //'cp target/x86_64-linux-android/release/${libName} ${jniLibs}/x86_64/${libName}',
+    ];
   }
   protected getCrateType(): string {
     return 'cdylib';
   }
   protected customizeCargo(current: readonly string[]): readonly string[] {
-    throw new Error('[customizeCargo]: Method stub.');
+    return [
+      ...current,
+      '',
+      '[target.\'cfg(target_os = "android")\'.dependencies]',
+      'jni = { version = "0.13.1", default-features = false }',
+    ];
   }
   protected prepareBuildWorkspace() {
-    throw new Error('[prepareBuildWorkspace]: Method stub.');
+    console.warn('[prepareBuildWorkspace]: Skipped.');
   }
-  protected getBuildScriptSource(): readonly string[] {
-    throw new Error('[getBuildScriptSource]: Method stub.');
+  protected getLibrarySource(): readonly string[] {
+    return [
+      '#![cfg(target_os = "android")]',
+      '#![allow(non_snake_case)]',
+      '',
+      'use jni::objects::{JClass, JString};',
+      'use jni::sys::jstring;',
+      'use jni::JNIEnv;',
+      'use std::ffi::CString;',
+      '',
+      '// NOTE: RustKt references the name rusty.kt, which will be the kotlin file exposing the functions below.',
+      '// Remember the JNI naming conventions.',
+      '#[no_mangle]',
+      'pub extern "system" fn Java_com_robertohuertas_rusty_1android_1lib_RustyKt_helloDirect(',
+      '  env: JNIEnv,',
+      '  _: JClass,',
+      '  input: JString,',
+      ') -> jstring {',
+      '  let input: String = env',
+      '    .get_string(input)',
+      '    .expect("Couldn\'t get Java string!")',
+      '    .into();',
+      '  let output = env',
+      '    .new_string(format!("Hello from Rust: {}", input))',
+      '    .expect("Couldn\'t create a Java string!");',
+      '  output.into_inner()',
+      '}',
+    ];
   }
   protected handleBuildCompletion() {
-    throw new Error('[handleBuildCompletion]: Method stub.');
+    console.warn('[handleBuildCompletion]: Skipped.');
   }
 }
 
+const onFinish = () => {
+  // Sync up the example app.
+  child_process.execSync('rm -rf node_modules ; rm yarn.lock ; yarn add ../', {
+    stdio,
+    cwd: example,
+  });
+  // Ensure pods are up to date.
+  child_process.execSync('pod install', {
+    stdio,
+    cwd: example_ios,
+  });
+};
+
 void (async () => {
   try {
-    new AppleHeliosFactory().compile();
+    //new AppleHeliosFactory().compile();
+    new AndroidHeliosFactory().compile();
 
-    // Sync up the example app.
-    child_process.execSync(
-      'rm -rf node_modules ; rm yarn.lock ; yarn add ../',
-      {
-        stdio,
-        cwd: example,
-      }
-    );
-
-    // Ensure pods are up to date.
-    child_process.execSync('pod install', {
-      stdio,
-      cwd: example_ios,
-    });
+    onFinish();
   } catch (e) {
     console.error(e);
   }

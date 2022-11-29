@@ -10,8 +10,10 @@ export default function App() {
       void (async () => {
         try {
           await start({
+            // If you encounter any errors, please try creating your own Alchemy key.
             untrusted_rpc_url:
-              'https://eth-mainnet.g.alchemy.com/v2/NgIm1_QkhzUdPRm6-WFftLQ6IpB5X712',
+              // https://github.com/scaffold-eth/scaffold-eth/blob/db24f28d1121468a08e7eed9affee43b0987aa10/packages/react-app/src/constants.js#L10
+              'https://eth-mainnet.g.alchemy.com/v2/oKxs-03sij-U_N0iOlrSsZFr29-IqbuF',
             consensus_rpc_url: 'https://www.lightclientdata.org',
           });
 

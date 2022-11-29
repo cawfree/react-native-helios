@@ -23,7 +23,7 @@ export default function App() {
 
           const [blockNumber, balance] = await Promise.all([
             provider.getBlockNumber(),
-            provider.getBalance('cawfree.eth'),
+            provider.getBalance('0x312e71162Df834A87a2684d30562b94816b0f072'),
           ]);
 
           console.warn(

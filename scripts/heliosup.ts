@@ -358,13 +358,17 @@ class AndroidHeliosFactory extends HeliosFactory {
   protected getTargets(): readonly string[] {
     return [
       'aarch64-linux-android',
+      // TODO: Why errors building?
       'armv7-linux-androideabi',
       'i686-linux-android',
       'x86_64-linux-android',
     ];
   }
   protected getCargoDependencies(): readonly string[] {
-    return ['cargo-ndk'];
+    return [
+      'cargo-ndk',
+      //'cross',
+    ];
   }
   protected getBuildScriptSource(): readonly string[] {
     return [
@@ -377,9 +381,13 @@ class AndroidHeliosFactory extends HeliosFactory {
       //  (target) =>
       //    `cargo ndk --target ${target} --android-platform \${min_ver} -- build --release`
       //),
-      ...this.getTargets().map(
-        (target) => `cargo ndk --target ${target} -- build --release`
-      ),
+      this.getTargets()
+        .map(
+          (target) =>
+            //`cross build --target ${target} --release`
+            `cargo ndk --target ${target} -- build --release`
+        )
+        .join(' && '),
       //'',
       //'# moving libraries to the android project',
       //'jniLibs=../android/rusty-android/rusty-android-lib/src/main/jniLibs',
@@ -462,8 +470,8 @@ const onFinish = () => {
 
 void (async () => {
   try {
-    new AppleHeliosFactory().compile();
-    //new AndroidHeliosFactory().compile();
+    //new AppleHeliosFactory().compile();
+    new AndroidHeliosFactory().compile();
 
     onFinish();
   } catch (e) {

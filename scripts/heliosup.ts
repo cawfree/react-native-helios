@@ -372,46 +372,15 @@ class AndroidHeliosFactory extends HeliosFactory {
     return Object.keys(AndroidHeliosFactory.ANDROID_LIBRARY_LUT);
   }
   protected getCargoDependencies(): readonly string[] {
-    return [
-      'cargo-ndk',
-      //'cross',
-    ];
+    return ['cargo-ndk'];
   }
   protected getBuildScriptSource(): readonly string[] {
     return [
       '#!/usr/bin/env bash',
-      '# set the version to use the library',
-      // TODO: What's an appropriate minVersion?
-      //'min_ver=22',
       '',
-      //...this.getTargets().map(
-      //  (target) =>
-      //    `cargo ndk --target ${target} --android-platform \${min_ver} -- build --release`
-      //),
       this.getTargets()
-        .map(
-          (target) =>
-            //`cross build --target ${target} --release`
-            `cargo ndk --target ${target} -- build --release`
-        )
+        .map((target) => `cargo ndk --target ${target} -- build --release`)
         .join(' && '),
-      //'',
-      //'# moving libraries to the android project',
-      //'jniLibs=../android/rusty-android/rusty-android-lib/src/main/jniLibs',
-      //`libName=lib${name}.so`,
-      //'',
-      //'rm -rf ${jniLibs}',
-      //'',
-      //'mkdir ${jniLibs}',
-      //'mkdir ${jniLibs}/arm64-v8a',
-      //'mkdir ${jniLibs}/armeabi-v7a',
-      //'mkdir ${jniLibs}/x86',
-      //'mkdir ${jniLibs}/x86_64',
-      //'',
-      //'cp target/aarch64-linux-android/release/${libName} ${jniLibs}/arm64-v8a/${libName}',
-      //'cp target/armv7-linux-androideabi/release/${libName} ${jniLibs}/armeabi-v7a/${libName}',
-      //'cp target/i686-linux-android/release/${libName} ${jniLibs}/x86/${libName}',
-      //'cp target/x86_64-linux-android/release/${libName} ${jniLibs}/x86_64/${libName}',
     ];
   }
   protected getCrateType(): string {

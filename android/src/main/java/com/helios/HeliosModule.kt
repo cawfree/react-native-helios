@@ -16,6 +16,8 @@ class HeliosModule(reactContext: ReactApplicationContext) :
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
   fun multiply(a: Double, b: Double, promise: Promise) {
+    helloDirect("calling hello direct")
+
     promise.resolve(a * b)
   }
 

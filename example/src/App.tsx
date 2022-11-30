@@ -9,8 +9,8 @@ export default function App() {
     () =>
       void (async () => {
         try {
-          await NativeModules.Helios.multiply(1, 2);
-          console.warn('done');
+          const x = await NativeModules.Helios.multiply(1, 2);
+          console.warn('done', x);
         } catch (e) {
           console.error(e);
         }

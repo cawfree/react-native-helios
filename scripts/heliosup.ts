@@ -2,13 +2,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as child_process from 'child_process';
 
-const RUST_VERSION_LATEST = 'nightly';
+const rust_version = 'nightly';
 const name = 'helios';
 const helios_checksum = '4c72344b55991b6296ccbb12b3c9e3ad634d593e';
 const openssl_sys_checksum = 'b30313a9775ed861ce9456745952e3012e5602ea';
 const stdio = 'inherit';
 const build = path.resolve('build');
 const ios = path.resolve('ios');
+const android = path.resolve('android');
 
 const example = path.resolve('example');
 const example_ios = path.resolve(example, 'ios');
@@ -18,6 +19,13 @@ const helios_toml = path.resolve(helios, 'Cargo.toml');
 
 const rust_openssl = path.resolve(build, 'openssl');
 const openssl_sys = path.resolve(rust_openssl, 'openssl-sys');
+
+const jniLibs = path.resolve(android, 'src', 'main', 'jniLibs');
+
+const arm64_v8a = path.resolve(jniLibs, 'arm64-v8a');
+const armeabi_v7a = path.resolve(jniLibs, 'armeabi-v7a');
+const x86 = path.resolve(jniLibs, 'x86');
+const x86_64 = path.resolve(jniLibs, 'x86_64');
 
 abstract class HeliosFactory {
   private static prepareBuildDir(): void {
@@ -79,8 +87,6 @@ abstract class HeliosFactory {
 
   public compile(): void {
     HeliosFactory.prepareBuildDir();
-
-    const rust_version = RUST_VERSION_LATEST;
 
     child_process.execSync('rustup default stable', { cwd: build, stdio });
 
@@ -352,17 +358,18 @@ ${fs
 }
 
 class AndroidHeliosFactory extends HeliosFactory {
+  static ANDROID_LIBRARY_LUT = {
+    'aarch64-linux-android': arm64_v8a,
+    // TODO: Enable these targets.
+    //'armv7-linux-androideabi': armeabi_v7a,
+    //'i686-linux-android': x86,
+    'x86_64-linux-android': x86_64,
+  };
   constructor() {
     super();
   }
   protected getTargets(): readonly string[] {
-    return [
-      'aarch64-linux-android',
-      // TODO: Why errors building?
-      'armv7-linux-androideabi',
-      'i686-linux-android',
-      'x86_64-linux-android',
-    ];
+    return Object.keys(AndroidHeliosFactory.ANDROID_LIBRARY_LUT);
   }
   protected getCargoDependencies(): readonly string[] {
     return [
@@ -419,7 +426,12 @@ class AndroidHeliosFactory extends HeliosFactory {
     ];
   }
   protected prepareBuildWorkspace() {
-    console.warn('[prepareBuildWorkspace]: Skipped.');
+    if (fs.existsSync(jniLibs)) fs.rmSync(jniLibs, { recursive: true });
+    fs.mkdirSync(jniLibs);
+
+    Object.values(AndroidHeliosFactory.ANDROID_LIBRARY_LUT).forEach((dir) =>
+      fs.mkdirSync(dir)
+    );
   }
   protected getLibrarySource(): readonly string[] {
     return [
@@ -451,7 +463,14 @@ class AndroidHeliosFactory extends HeliosFactory {
     ];
   }
   protected handleBuildCompletion() {
-    console.warn('[handleBuildCompletion]: Skipped.');
+    Object.entries(AndroidHeliosFactory.ANDROID_LIBRARY_LUT).forEach(
+      ([k, v]) => {
+        fs.copyFileSync(
+          path.resolve(helios, 'target', k, 'release', `lib${name}.so`),
+          path.resolve(v, `lib${name}.so`)
+        );
+      }
+    );
   }
 }
 

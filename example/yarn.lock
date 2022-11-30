@@ -1351,9 +1351,9 @@
     "@types/istanbul-lib-report" "*"
 
 "@types/node@*":
-  version "18.11.9"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.9.tgz#02d013de7058cea16d36168ef2fc653464cfbad4"
-  integrity sha512-CRpX21/kGdzjOpFsZSkcrXMGIBWMGNIHXXBVFSH+ggkftxg+XYP20TESbh+zFvFj3EQOl5byk0HTRn1IL6hbqg==
+  version "18.11.10"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.10.tgz#4c64759f3c2343b7e6c4b9caf761c7a3a05cee34"
+  integrity sha512-juG3RWMBOqcOuXC643OAdSA525V44cVgGV6dUDuiFtss+8Fk5x1hI93Rsld43VeJVIeqlP9I7Fn9/qaVqoEAuQ==
 
 "@types/yargs-parser@*":
   version "21.0.0"
@@ -1755,9 +1755,9 @@ camelcase@^6.0.0:
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
 caniuse-lite@^1.0.30001400:
-  version "1.0.30001434"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001434.tgz#ec1ec1cfb0a93a34a0600d37903853030520a4e5"
-  integrity sha512-aOBHrLmTQw//WFa2rcF1If9fa3ypkC1wzqqiKHgfdrXTWcU8C4gKVZT77eQAPWN1APys3+uQ0Df07rKauXGEYA==
+  version "1.0.30001435"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001435.tgz#502c93dbd2f493bee73a408fe98e98fb1dad10b2"
+  integrity sha512-kdCkUTjR+v4YAJelyiDTqiu82BDr4W4CP5sgTA0ZBmqn30XfS2ZghPLMowik9TPhS+psWJiUNxsqLyurDbmutA==
 
 chalk@^2.0.0:
   version "2.4.2"
@@ -2315,9 +2315,9 @@ find-up@^5.0.0:
     path-exists "^4.0.0"
 
 flow-parser@0.*:
-  version "0.193.0"
-  resolved "https://registry.yarnpkg.com/flow-parser/-/flow-parser-0.193.0.tgz#8d705fc2d6b378a24bae189014f6f0320d040c4f"
-  integrity sha512-x7ZoArE1UO3Nk2rkq/KK/Tkp714QDMVzEsxIyK2+p7Alx+88LY7KgqmeQZuiAG8TCHucmYuHefbk3KsVFVjouA==
+  version "0.194.0"
+  resolved "https://registry.yarnpkg.com/flow-parser/-/flow-parser-0.194.0.tgz#3d226aca8473593ad90167ae1e14dbb3cbcb6a8b"
+  integrity sha512-3dipGWKnXmE4LEE5yCPHJrSlMYOPAYU7wMBecfKiWPQSZp1CvkpJ59dfuuUIeM2TSttKGSatep77vGG9cjkeqg==
 
 flow-parser@^0.121.0:
   version "0.121.0"

@@ -446,7 +446,8 @@ class AndroidHeliosFactory extends HeliosFactory {
       '// NOTE: RustKt references the name rusty.kt, which will be the kotlin file exposing the functions below.',
       '// Remember the JNI naming conventions.',
       '#[no_mangle]',
-      'pub extern "system" fn Java_com_robertohuertas_rusty_1android_1lib_RustyKt_helloDirect(',
+      // Java_com_robertohuertas_rusty_1android_1lib_RustyKt_helloDirect
+      `pub extern "system" fn Java_com_${name}_HeliosKt_helloDirect(`,
       '  env: JNIEnv,',
       '  _: JClass,',
       '  input: JString,',

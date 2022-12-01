@@ -6,6 +6,7 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
 
 import android.util.Log
+import com.facebook.react.bridge.ReadableMap
 
 class HeliosModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
@@ -17,10 +18,12 @@ class HeliosModule(reactContext: ReactApplicationContext) :
   // Example method
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
-  fun start(a: Double, b: Double, promise: Promise) {
+  fun start(params: ReadableMap, promise: Promise) {
     Log.d("cawfree", start("calling hello direct"))
 
-    promise.resolve(a * b)
+    params.getString("untrusted_rpc_url")?.let { Log.d("cawfree", it) }
+
+    promise.resolve("some result")
   }
 
   companion object {

@@ -15,14 +15,9 @@ class HeliosModule(reactContext: ReactApplicationContext) :
     return NAME
   }
 
-  // Example method
-  // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
   fun start(params: ReadableMap, promise: Promise) {
-
-    Log.d("cawfree", start(params.getString("untrusted_rpc_url")!!, params.getString("consensus_rpc_url")!!))
-
-    promise.resolve("some result")
+    promise.resolve(start(params.getString("untrusted_rpc_url")!!, params.getString("consensus_rpc_url")!!))
   }
 
   companion object {

@@ -1,3 +1,6 @@
 package com.helios
 
-external fun start(to: String): String
+external fun start(
+  untrusted_rpc_url: String,
+  consensus_rpc_url: String
+): String

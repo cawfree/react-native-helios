@@ -19,9 +19,8 @@ class HeliosModule(reactContext: ReactApplicationContext) :
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
   fun start(params: ReadableMap, promise: Promise) {
-    Log.d("cawfree", start("calling hello direct"))
 
-    params.getString("untrusted_rpc_url")?.let { Log.d("cawfree", it) }
+    Log.d("cawfree", start(params.getString("untrusted_rpc_url")!!, params.getString("consensus_rpc_url")!!))
 
     promise.resolve("some result")
   }

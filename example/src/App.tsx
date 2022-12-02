@@ -2,22 +2,20 @@ import * as React from 'react';
 
 import { StyleSheet, View, NativeModules } from 'react-native';
 import { start } from 'react-native-helios';
-//import { ethers } from 'ethers';
+import { ethers } from 'ethers';
 
 export default function App() {
   React.useEffect(
     () =>
       void (async () => {
         try {
-          const x = await start({
+          await start({
             // If you encounter any errors, please try creating your own Alchemy key.
             untrusted_rpc_url:
               // https://github.com/scaffold-eth/scaffold-eth/blob/db24f28d1121468a08e7eed9affee43b0987aa10/packages/react-app/src/constants.js#L10
               'https://eth-mainnet.g.alchemy.com/v2/oKxs-03sij-U_N0iOlrSsZFr29-IqbuF',
             consensus_rpc_url: 'https://www.lightclientdata.org',
           });
-
-          console.warn(x);
 
           //const provider = await ethers.providers.getDefaultProvider(
           //  'http://127.0.0.1:8545'

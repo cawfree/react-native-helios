@@ -388,7 +388,12 @@ class AndroidHeliosFactory extends HeliosFactory {
   }
   protected customizeCargo(current: readonly string[]): readonly string[] {
     return [
-      ...current,
+      ...current.flatMap((str) => {
+        if (str === '[dependencies]') {
+          return [str, 'async-ffi = "0.4.0"'];
+        }
+        return [str];
+      }),
       '',
       '[target.\'cfg(target_os = "android")\'.dependencies]',
       'jni = { version = "0.13.1", default-features = false }',
@@ -415,13 +420,19 @@ class AndroidHeliosFactory extends HeliosFactory {
       'use ::client::{database::FileDB, Client, ClientBuilder};',
       'use ::config::{CliConfig, Config, networks};',
       '',
+      'use async_ffi::{FfiFuture, FutureExt};',
+      '',
       '#[no_mangle]',
       `pub extern "system" fn Java_com_${name}_HeliosKt_start(`,
       '  env: JNIEnv,',
       '  _: JClass,',
       '  arg0: JString,',
       '  arg1: JString,',
+      // TODO: If there was a callback we'd be good?
       ') -> jstring {',
+      '',
+      '  println!("cawfree did call function");',
+      '',
       '  let untrusted_rpc_url: String = env',
       '    .get_string(arg0)',
       '    .expect("Couldn\'t get Java string!")',
@@ -432,21 +443,27 @@ class AndroidHeliosFactory extends HeliosFactory {
       '    .expect("Couldn\'t get Java string!")',
       '    .into();',
       '',
-      '  let mut client = ClientBuilder::new()',
-      '    .network(networks::Network::MAINNET)',
-      '    .execution_rpc(&untrusted_rpc_url)',
-      '    .consensus_rpc(&consensus_rpc_url)',
-      '    .rpc_port(8545)',
-      '    .build()',
-      '    .unwrap();',
+      '  async move {',
       '',
-      //'    client.start().await.unwrap();',
+      '    let mut client = ClientBuilder::new()',
+      '      .network(networks::Network::MAINNET)',
+      '      .execution_rpc(&untrusted_rpc_url)',
+      '      .consensus_rpc(&consensus_rpc_url)',
+      '      .rpc_port(8545)',
+      '      .build()',
+      '      .unwrap();',
       '',
-      '  let output = env',
-      '    .new_string(format!("Hello from async Rust with two variables and a client: {} {}", untrusted_rpc_url, consensus_rpc_url))',
-      '    .expect("Couldn\'t create a Java string!");',
+      '    println!("cawfree will await client");',
       '',
-      '  output.into_inner()',
+      '    client.start().await;',
+      '',
+      '    let output = env',
+      '      .new_string(format!("Hello from async Rust with two variables and a client: {}", "wonder if this will just work"))',
+      '      .expect("Couldn\'t create a Java string!");',
+      '',
+      '     output.into_inner()',
+      '  }',
+      '  .into_ffi();',
       '}',
     ];
   }

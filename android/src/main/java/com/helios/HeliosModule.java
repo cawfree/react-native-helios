@@ -30,7 +30,10 @@ public class HeliosModule extends ReactContextBaseJavaModule {
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
   public void start(ReadableMap params, Promise promise) {
-    Session s = new Session();
+    // TODO: to static
+
+    System.loadLibrary("helios");
+    Helios s = new Helios();
 
     int x = s.addAnd1(3);
 

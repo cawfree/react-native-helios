@@ -394,14 +394,14 @@ class AndroidHeliosFactory extends HeliosFactory {
           return [
             '[build-dependencies]',
             'flapigen = "0.6.0-pre13"',
-            'rifgen = "*"',
-            'jni-sys = "*"',
-            'log = "*"',
-            'log-panics="*"',
-            'android_logger = "*"',
+            'rifgen = "0.1.61"',
             '',
             str,
-            'rifgen = "*"',
+            'rifgen = "0.1.61"',
+            'android_logger = { version = "0.11.1", default-features = false }',
+            'jni-sys = "0.3.0"',
+            'log = "0.4.6"',
+            'log-panics = "2.0"',
           ];
         } else if (str === '[package]') return [str, 'build = "build.rs"'];
         return [str];
@@ -446,7 +446,7 @@ class AndroidHeliosFactory extends HeliosFactory {
         'use rifgen::{Generator, Language, TypeCases};',
         '',
         'use std::{env, path::Path};',
-        //'use std::fs::File;',
+        'use std::fs;',
         //'use std::io::{Read, Write, Result};',
         '',
         //'fn prepend_file<P: AsRef<Path> + ?Sized>(data: &[u8], path: &P) -> Result<()> {',
@@ -465,8 +465,10 @@ class AndroidHeliosFactory extends HeliosFactory {
         '  let in_src = Path::new("src").join("java_glue.rs.in");',
         '  let out_src = Path::new(&out_dir).join("java_glue.rs");',
         '',
-        ' Generator::new(TypeCases::CamelCase,Language::Java, "src")',
-        '   .generate_interface(&in_src);',
+        '  fs::write("README.md", out_src.display().to_string()).expect("Unable to write file");',
+        '',
+        '  Generator::new(TypeCases::CamelCase,Language::Java, "src")',
+        '    .generate_interface(&in_src);',
         '',
         '  let swig_gen = flapigen::Generator::new(',
         '    LanguageConfig::JavaConfig(',
@@ -486,7 +488,6 @@ class AndroidHeliosFactory extends HeliosFactory {
         '  )',
         '  .rustfmt_bindings(true);',
         '',
-        // TODO: maybe overwriting lib might work
         '  swig_gen.expand("android bindings", &in_src, &out_src);',
         '',
         //'  let mut dest = File::create("src/lib.rs").expect("Expected file!");',
@@ -516,20 +517,27 @@ class AndroidHeliosFactory extends HeliosFactory {
   }
   protected getLibrarySource(): readonly string[] {
     return [
-      '// src/lib.rs',
+      'use log::info;',
       'use rifgen::rifgen_attr::*;',
       '',
       'mod java_glue;',
       'pub use crate::java_glue::*;',
       '',
-      'pub struct Session {',
+      'pub struct Helios {',
       '  a: i32,',
       '}',
       '',
-      'impl Session {',
+      'impl Helios {',
       '  #[generate_interface(constructor)]',
-      '  pub fn new() -> Session {',
-      '    Session { a: 2 }',
+      '  pub fn new() -> Helios {',
+      '    #[cfg(target_os = "android")]',
+      '    android_logger::init_once(',
+      '      android_logger::Config::default()',
+      '        .with_min_level(log::Level::Debug)',
+      '        .with_tag("cawfree"),',
+      '    );',
+      '    info!("init log system - done");',
+      '    Helios { a: 2 }',
       '  }',
       '',
       '  #[generate_interface]',
@@ -605,10 +613,18 @@ class AndroidHeliosFactory extends HeliosFactory {
   protected handleBuildCompletion() {
     Object.entries(AndroidHeliosFactory.ANDROID_LIBRARY_LUT).forEach(
       ([k, v]) => {
-        fs.copyFileSync(
-          path.resolve(helios, 'target', k, 'release', `lib${name}.so`),
-          path.resolve(v, `lib${name}.so`)
+        const from = path.resolve(
+          helios,
+          'target',
+          k,
+          'release',
+          `lib${name}.so`
         );
+        const to = path.resolve(v, `lib${name}.so`);
+
+        console.log('[handleBuildCompletion]', 'Copy', from, 'to', to);
+
+        fs.copyFileSync(from, to);
       }
     );
   }

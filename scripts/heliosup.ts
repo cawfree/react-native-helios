@@ -16,16 +16,17 @@ const example_ios = path.resolve(example, 'ios');
 
 const helios = path.resolve(build, name);
 const helios_toml = path.resolve(helios, 'Cargo.toml');
+const helios_build_rs = path.resolve(helios, 'build.rs');
 
 const rust_openssl = path.resolve(build, 'openssl');
 const openssl_sys = path.resolve(rust_openssl, 'openssl-sys');
 
-const jniLibs = path.resolve(android, 'src', 'main', 'jniLibs');
+const libs = path.resolve(android, 'src', 'main', 'jniLibs');
 
-const arm64_v8a = path.resolve(jniLibs, 'arm64-v8a');
-const armeabi_v7a = path.resolve(jniLibs, 'armeabi-v7a');
-const x86 = path.resolve(jniLibs, 'x86');
-const x86_64 = path.resolve(jniLibs, 'x86_64');
+const arm64_v8a = path.resolve(libs, 'arm64-v8a');
+const armeabi_v7a = path.resolve(libs, 'armeabi-v7a');
+const x86 = path.resolve(libs, 'x86');
+const x86_64 = path.resolve(libs, 'x86_64');
 
 abstract class HeliosFactory {
   private static prepareBuildDir(): void {
@@ -248,7 +249,7 @@ class AppleHeliosFactory extends HeliosFactory {
 
   protected prepareBuildWorkspace() {
     fs.writeFileSync(
-      path.resolve(helios, 'build.rs'),
+      helios_build_rs,
       [
         'use std::path::PathBuf;',
         '',
@@ -390,8 +391,19 @@ class AndroidHeliosFactory extends HeliosFactory {
     return [
       ...current.flatMap((str) => {
         if (str === '[dependencies]') {
-          return [str, 'async-ffi = "0.4.0"'];
-        }
+          return [
+            '[build-dependencies]',
+            'flapigen = "0.6.0-pre13"',
+            'rifgen = "*"',
+            'jni-sys = "*"',
+            'log = "*"',
+            'log-panics="*"',
+            'android_logger = "*"',
+            '',
+            str,
+            'rifgen = "*"',
+          ];
+        } else if (str === '[package]') return [str, 'build = "build.rs"'];
         return [str];
       }),
       '',
@@ -400,71 +412,194 @@ class AndroidHeliosFactory extends HeliosFactory {
     ];
   }
   protected prepareBuildWorkspace() {
-    if (fs.existsSync(jniLibs)) fs.rmSync(jniLibs, { recursive: true });
-    fs.mkdirSync(jniLibs);
+    if (fs.existsSync(libs)) fs.rmSync(libs, { recursive: true });
+    fs.mkdirSync(libs);
 
     Object.values(AndroidHeliosFactory.ANDROID_LIBRARY_LUT).forEach((dir) =>
       fs.mkdirSync(dir)
     );
+
+    fs.writeFileSync(
+      path.resolve(helios, 'src', 'java_glue.rs'),
+      [
+        '#![allow(',
+        '  clippy::enum_variant_names,',
+        '  clippy::unused_unit,',
+        '  clippy::let_and_return,',
+        '  clippy::not_unsafe_ptr_arg_deref,',
+        '  clippy::cast_lossless,',
+        '  clippy::blacklisted_name,',
+        '  clippy::too_many_arguments,',
+        '  clippy::trivially_copy_pass_by_ref,',
+        '  clippy::let_unit_value,',
+        '  clippy::clone_on_copy',
+        ')]',
+        '',
+        'include!(concat!(env!("OUT_DIR"), "/java_glue.rs"));',
+      ].join('\n')
+    );
+
+    fs.writeFileSync(
+      helios_build_rs,
+      [
+        'use flapigen::{JavaConfig, LanguageConfig};',
+        'use rifgen::{Generator, Language, TypeCases};',
+        '',
+        'use std::{env, path::Path};',
+        //'use std::fs::File;',
+        //'use std::io::{Read, Write, Result};',
+        '',
+        //'fn prepend_file<P: AsRef<Path> + ?Sized>(data: &[u8], path: &P) -> Result<()> {',
+        //'  let mut f =  File::open(path)?;',
+        //'  let mut content = data.to_owned();',
+        //'  f.read_to_end(&mut content)?;',
+        //'',
+        //'  let mut f = File::create(path)?;',
+        //'  f.write_all(content.as_slice())?;',
+        //'',
+        //'  Ok(())',
+        //'}',
+        '',
+        'fn main() {',
+        '  let out_dir = env::var("OUT_DIR").unwrap();',
+        '  let in_src = Path::new("src").join("java_glue.rs.in");',
+        '  let out_src = Path::new(&out_dir).join("java_glue.rs");',
+        '',
+        ' Generator::new(TypeCases::CamelCase,Language::Java, "src")',
+        '   .generate_interface(&in_src);',
+        '',
+        '  let swig_gen = flapigen::Generator::new(',
+        '    LanguageConfig::JavaConfig(',
+        '      JavaConfig::new(',
+        '        Path::new("..")',
+        '          .join("..")',
+        '          .join("android")',
+        '          .join("src")',
+        '          .join("main")',
+        '          .join("java")',
+        '          .join("com")',
+        '          .join("helios"),',
+        '          "com.helios".into(),',
+        '      )',
+        '      .use_null_annotation_from_package("androidx.annotation".into()),',
+        '    )',
+        '  )',
+        '  .rustfmt_bindings(true);',
+        '',
+        // TODO: maybe overwriting lib might work
+        '  swig_gen.expand("android bindings", &in_src, &out_src);',
+        '',
+        //'  let mut dest = File::create("src/lib.rs").expect("Expected file!");',
+        //'  dest.write("mod java_glue;\\npub use crate::java_glue::*;\\n".as_bytes()).expect("expected file");',
+
+        //'prepend_file("mod java_glue;\\npub use crate::java_glue::*;\\n".as_bytes(), "src/lib.rs");',
+        //'',
+        //`  prepend_file("${[
+        //  'use jni::sys::jstring;',
+        //  'use jni::sys::jlong;',
+        //  'use jni::sys::jint;',
+        //  'use jni::JNIEnv;',
+        //  'use jni_sys::JNI_OK;',
+        //].join('\\n')}".as_bytes(), "src/lib.rs");`,
+        //'',
+        //'  let mut source= File::open("src/lib.rs").expect("expected file");',
+        //'  let mut data1 = String::new();',
+        //'  source.read_to_string(&mut data1).expect("expected file");',
+        //'  drop(source);',
+        //'  let data2 = data1.replace("(**env)", "(*env)");',
+        //'  let mut dest = File::create("src/lib.rs").expect("expected file");',
+        //'  dest.write(data2.as_bytes()).expect("expected file");',
+        //'',
+        '}',
+      ].join('\n')
+    );
   }
   protected getLibrarySource(): readonly string[] {
     return [
-      '#![cfg(target_os = "android")]',
-      '#![allow(non_snake_case)]',
+      '// src/lib.rs',
+      'use rifgen::rifgen_attr::*;',
       '',
-      'use jni::objects::{JClass, JString};',
-      'use jni::sys::jstring;',
-      'use jni::JNIEnv;',
-      'use std::ffi::CString;',
+      'mod java_glue;',
+      'pub use crate::java_glue::*;',
       '',
-      'use ::client::{database::FileDB, Client, ClientBuilder};',
-      'use ::config::{CliConfig, Config, networks};',
-      '',
-      'use async_ffi::{FfiFuture, FutureExt};',
-      '',
-      '#[no_mangle]',
-      `pub extern "system" fn Java_com_${name}_HeliosKt_start(`,
-      '  env: JNIEnv,',
-      '  _: JClass,',
-      '  arg0: JString,',
-      '  arg1: JString,',
-      // TODO: If there was a callback we'd be good?
-      ') -> jstring {',
-      '',
-      '  println!("cawfree did call function");',
-      '',
-      '  let untrusted_rpc_url: String = env',
-      '    .get_string(arg0)',
-      '    .expect("Couldn\'t get Java string!")',
-      '    .into();',
-      '',
-      '  let consensus_rpc_url: String = env',
-      '    .get_string(arg1)',
-      '    .expect("Couldn\'t get Java string!")',
-      '    .into();',
-      '',
-      '  async move {',
-      '',
-      '    let mut client = ClientBuilder::new()',
-      '      .network(networks::Network::MAINNET)',
-      '      .execution_rpc(&untrusted_rpc_url)',
-      '      .consensus_rpc(&consensus_rpc_url)',
-      '      .rpc_port(8545)',
-      '      .build()',
-      '      .unwrap();',
-      '',
-      '    println!("cawfree will await client");',
-      '',
-      '    client.start().await;',
-      '',
-      '    let output = env',
-      '      .new_string(format!("Hello from async Rust with two variables and a client: {}", "wonder if this will just work"))',
-      '      .expect("Couldn\'t create a Java string!");',
-      '',
-      '     output.into_inner()',
-      '  }',
-      '  .into_ffi();',
+      'pub struct Session {',
+      '  a: i32,',
       '}',
+      '',
+      'impl Session {',
+      '  #[generate_interface(constructor)]',
+      '  pub fn new() -> Session {',
+      '    Session { a: 2 }',
+      '  }',
+      '',
+      '  #[generate_interface]',
+      '  pub fn add_and1(&self, val: i32) -> i32 {',
+      '    self.a + val + 1',
+      '  }',
+      '',
+      '  // Greeting with full, no-runtime-cost support for newlines and UTF-8',
+      '  #[generate_interface]',
+      '  pub fn greet(to: &str) -> String {',
+      '    format!("Hello {} ✋\nIt\'s a pleasure to meet you!", to)',
+      '  }',
+      '',
+      '}',
+      //'#![cfg(target_os = "android")]',
+      //'#![allow(non_snake_case)]',
+      //'',
+      //'use jni::objects::{JClass, JString};',
+      //'use jni::sys::jstring;',
+      //'use jni::JNIEnv;',
+      //'use std::ffi::CString;',
+      //'',
+      //'use ::client::{database::FileDB, Client, ClientBuilder};',
+      //'use ::config::{CliConfig, Config, networks};',
+      //'',
+      //'use async_ffi::{FfiFuture, FutureExt};',
+      //'',
+      //'#[no_mangle]',
+      //`pub extern "system" fn Java_com_${name}_HeliosKt_start(`,
+      //'  env: JNIEnv,',
+      //'  _: JClass,',
+      //'  arg0: JString,',
+      //'  arg1: JString,',
+      //// TODO: If there was a callback we'd be good?
+      //') -> jstring {',
+      //'',
+      //'  println!("cawfree did call function");',
+      //'',
+      //'  let untrusted_rpc_url: String = env',
+      //'    .get_string(arg0)',
+      //'    .expect("Couldn\'t get Java string!")',
+      //'    .into();',
+      //'',
+      //'  let consensus_rpc_url: String = env',
+      //'    .get_string(arg1)',
+      //'    .expect("Couldn\'t get Java string!")',
+      //'    .into();',
+      //'',
+      //'  async move {',
+      //'',
+      //'    let mut client = ClientBuilder::new()',
+      //'      .network(networks::Network::MAINNET)',
+      //'      .execution_rpc(&untrusted_rpc_url)',
+      //'      .consensus_rpc(&consensus_rpc_url)',
+      //'      .rpc_port(8545)',
+      //'      .build()',
+      //'      .unwrap();',
+      //'',
+      //'    println!("cawfree will await client");',
+      //'',
+      //'    client.start().await;',
+      //'',
+      //'    let output = env',
+      //'      .new_string(format!("Hello from async Rust with two variables and a client: {}", "wonder if this will just work"))',
+      //'      .expect("Couldn\'t create a Java string!");',
+      //'',
+      //'     output.into_inner()',
+      //'  }',
+      //'  .into_ffi();',
+      //'}',
     ];
   }
   protected handleBuildCompletion() {

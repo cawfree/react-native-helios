@@ -14,6 +14,8 @@ import com.facebook.react.bridge.ReadableMap;
 
 @ReactModule(name = HeliosModule.NAME)
 public class HeliosModule extends ReactContextBaseJavaModule {
+  static { System.loadLibrary("helios"); }
+
   public static final String NAME = "Helios";
 
   public HeliosModule(ReactApplicationContext reactContext) {
@@ -30,17 +32,12 @@ public class HeliosModule extends ReactContextBaseJavaModule {
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
   public void start(ReadableMap params, Promise promise) {
-    // TODO: to static
-
-    System.loadLibrary("helios");
     Helios s = new Helios();
 
     int x = s.addAnd1(3);
 
-    Log.d("cawfree", "x is "+x);
-
     //params.getString("untrusted_rpc_url")
     //params.getString("consensus_rpc_url")
-    promise.resolve("x is "+x);
+    promise.resolve("helios is "+x);
   }
 }

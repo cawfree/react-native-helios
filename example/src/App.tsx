@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { start } from 'react-native-helios';
 import { ethers } from 'ethers';
 
@@ -18,7 +18,9 @@ export default function App() {
           });
 
           const provider = await ethers.providers.getDefaultProvider(
-            'http://127.0.0.1:8545'
+            `http://${
+              Platform.OS === 'android' ? 'localhost' : '127.0.0.1'
+            }:8545`
           );
 
           const [blockNumber, balance] = await Promise.all([

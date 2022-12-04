@@ -1,6 +1,6 @@
 # react-native-helios
 
-> ⚠️ Currently `react-native-helios` only supports execution on iOS devices and simulators.
+> ⚠️ Currently `react-native-helios` only supports execution on iOS and Android.
 
 Throughout the majority of [__Ethereum__](https://ethereum.org/en/)'s history, frontend applications have been forced to rely upon centralized interfaces like [__Infura__](https://www.infura.io/) to access the decentralized network. This is because to be a meaningful participant in the decentralized network, such as an entity capable of submitting transactions or maintaining a verifiable history the network state, the protocol's current design [__demands high device specifications__](https://youtu.be/0stc9jnQLXA?t=136) that are insurmountable for even top-end mobile devices.
 
@@ -45,8 +45,13 @@ console.log("Ready!");
 This will establish a JSON-RPC on your device running at `http://127.0.0.1:8485`, which can then be interacted like usual using [`ethers`](https://github.com/ethers-io/ethers.js/):
 
 ```typescript
+import { Platform } from 'react-native';
+import { ethers } from 'ethers';
+
 const provider = await ethers.providers.getDefaultProvider(
-  'http://127.0.0.1:8545'
+  `http://${
+    Platform.OS === 'android' ? 'localhost' : '127.0.0.1'
+  }:8545`
 );
 
 const [blockNumber, balance] = await Promise.all([
@@ -76,10 +81,10 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```shell
 git clone https://github.com/cawfree/react-native-helios
 cd react-native-helios
-yarn && yarn heliosup
+yarn ; yarn heliosup
 ```
 
-> Once this task has completed, the rust library dependencies will be compiled for iOS using [`cargo-lipo`](https://github.com/TimNN/cargo-lipo), a runtime-compatible bridge interface for the generated binaries will be exported by [`swift-bridge`](https://github.com/chinedufn/swift-bridge), and the [`example/`](./example) project's [__pods__](https://cocoapods.org/) directory will be populated with the new library binaries.
+> Once this task has completed, the rust library dependencies will be compiled for iOS using [`cargo-lipo`](https://github.com/TimNN/cargo-lipo), a runtime-compatible bridge interface for the generated binaries will be exported by [`swift-bridge`](https://github.com/chinedufn/swift-bridge), and the [`example/`](./example) project's [__pods__](https://cocoapods.org/) directory will be populated with the new library binaries. For Android, we use [`flapigen`](https://github.com/Dushistov/flapigen-rs) to synthesize a runtime-compatible interface.
 >
 > To support the `arm64` architecture for both simulated and physical iOS devices, the target-specific static libraries are repackaged into an [`XCFramework`](https://medium.com/trueengineering/xcode-and-xcframeworks-new-format-of-packing-frameworks-ca15db2381d3).
 

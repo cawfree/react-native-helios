@@ -25,7 +25,3 @@ export type StartParams = {
 export function start(params: StartParams): Promise<void> {
   return Helios.start(params);
 }
-
-export function getBlockNumber(): Promise<string> {
-  return Helios.getBlockNumber();
-}

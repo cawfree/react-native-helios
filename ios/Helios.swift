@@ -23,31 +23,12 @@ class Helios: NSObject {
                 (untrusted_rpc_url as! String),
                 (consensus_rpc_url as! String)
               );
-
-              let blockNumber = await rustApp.helios_get_block_number();
-
-              print("block number is (getting synchronously)");
-              print(blockNumber.toString());
-
               resolve("");
           }
       } else {
           // Fallback on earlier versions
           reject("", "", nil);
       };
-  }
-
-  @objc func getBlockNumber(_ resolve: @escaping RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) -> Void {
-    if #available(iOS 13.0.0, *) {
-      let rustApp = RUST_APPS["default"];
-      let task = Task {
-        let blockNumber = await rustApp!.helios_get_block_number();
-        resolve(blockNumber.toString());
-      }
-    } else {
-      // Fallback on earlier versions
-      reject("", "", nil);
-    };
   }
 
 }

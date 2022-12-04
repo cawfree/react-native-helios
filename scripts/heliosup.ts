@@ -24,8 +24,8 @@ const openssl_sys = path.resolve(rust_openssl, 'openssl-sys');
 const libs = path.resolve(android, 'src', 'main', 'jniLibs');
 
 const arm64_v8a = path.resolve(libs, 'arm64-v8a');
-const armeabi_v7a = path.resolve(libs, 'armeabi-v7a');
-const x86 = path.resolve(libs, 'x86');
+//const armeabi_v7a = path.resolve(libs, 'armeabi-v7a');
+//const x86 = path.resolve(libs, 'x86');
 const x86_64 = path.resolve(libs, 'x86_64');
 
 abstract class HeliosFactory {

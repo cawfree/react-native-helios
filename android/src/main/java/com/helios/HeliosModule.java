@@ -55,25 +55,15 @@ public class HeliosModule extends ReactContextBaseJavaModule {
         // Ensure we escape garbage collection.
         INSTANCES.put("default", helios);
 
-        //while (true) {
-        //  try {
-        //    Log.d("cawfree", "about to test up here");
-        //    String nextBlockNumber = helios.heliosGetBlockNumber();
-        //    Log.d("cawfree", "now the block number is "+nextBlockNumber);
-        //    Thread.sleep(2000);
-        //  } catch (InterruptedException e) {
-        //    e.printStackTrace();
-        //  }
-        //}
-        //promise.resolve("");
+        promise.resolve("");
       }
   //  }).start();
   //}
 
   @ReactMethod
   public void trySomething(Promise promise) {
-    //Helios x = INSTANCES.get("default");
-    promise.resolve("");//x.heliosGetBlockNumber());
+    Helios x = INSTANCES.get("default");
+    promise.resolve(x.heliosGetBlockNumber());
   }
 
 }

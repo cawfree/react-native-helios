@@ -402,6 +402,7 @@ class AndroidHeliosFactory extends HeliosFactory {
             'jni-sys = "0.3.0"',
             'log = "0.4.6"',
             'log-panics = "2.0"',
+            'tokio = "1.22.0"',
           ];
         } else if (str === '[package]') return [str, 'build = "build.rs"'];
         return [str];
@@ -498,6 +499,8 @@ class AndroidHeliosFactory extends HeliosFactory {
       'use ::client::{database::FileDB, Client, ClientBuilder};',
       'use ::config::{CliConfig, Config, networks};',
       '',
+      'use tokio::runtime::Runtime;',
+      '',
       'pub struct Helios {',
       '  client: Option<Client<FileDB>>',
       '}',
@@ -516,7 +519,7 @@ class AndroidHeliosFactory extends HeliosFactory {
       '  }',
       '',
       '  #[generate_interface]',
-      '  async fn helios_start(',
+      '  fn helios_start(',
       '    &mut self,',
       '    untrusted_rpc_url: String,',
       '    consensus_rpc_url: String',
@@ -529,9 +532,20 @@ class AndroidHeliosFactory extends HeliosFactory {
       '      .build()',
       '      .unwrap();',
       '',
-      '    client.start().await.unwrap();',
+      '    Runtime::new().unwrap().block_on(client.start());',
+      '',
+      '    let block_number = Runtime::new().unwrap().block_on(client.get_block_number()).unwrap();',
+      '    info!("block number is {}", block_number.to_string());',
       '',
       '    self.client = Some(client);',
+      '  }',
+      '',
+      '  #[generate_interface]',
+      '  fn helios_get_block_number(&mut self) -> String {',
+      '    if let Some(client) = &self.client {',
+      '      return Runtime::new().unwrap().block_on(client.get_block_number()).unwrap().to_string();',
+      '    }',
+      '    return (-1).to_string();',
       '  }',
       '',
       '}',
@@ -548,9 +562,6 @@ class AndroidHeliosFactory extends HeliosFactory {
           `lib${name}.so`
         );
         const to = path.resolve(v, `lib${name}.so`);
-
-        console.log('[handleBuildCompletion]', 'Copy', from, 'to', to);
-
         fs.copyFileSync(from, to);
       }
     );

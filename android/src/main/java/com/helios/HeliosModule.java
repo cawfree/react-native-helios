@@ -12,11 +12,15 @@ import com.facebook.react.module.annotations.ReactModule;
 
 import com.facebook.react.bridge.ReadableMap;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @ReactModule(name = HeliosModule.NAME)
 public class HeliosModule extends ReactContextBaseJavaModule {
   static { System.loadLibrary("helios"); }
 
   public static final String NAME = "Helios";
+  private static Map<String, Helios> INSTANCES = new HashMap();
 
   public HeliosModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -32,12 +36,38 @@ public class HeliosModule extends ReactContextBaseJavaModule {
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
   public void start(ReadableMap params, Promise promise) {
-    Helios s = new Helios();
 
-    int x = s.addAnd1(3);
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        Helios helios = new Helios();
 
-    //params.getString("untrusted_rpc_url")
-    //params.getString("consensus_rpc_url")
-    promise.resolve("helios is "+x);
+        // TODO: consider launching this from a thread instead
+        helios.heliosStart(
+          params.getString("untrusted_rpc_url"),
+          params.getString("consensus_rpc_url")
+        );
+
+        // TODO: get block number next
+
+        // Ensure we escape garbage collection.
+        INSTANCES.put("default", helios);
+
+        Log.d("cawfree", "about to test up here");
+
+        String nextBlockNumber = helios.heliosGetBlockNumber();
+
+        Log.d("cawfree", "now the block number is "+nextBlockNumber);
+
+        promise.resolve("");
+      }
+    }).start();
   }
+
+  @ReactMethod
+  public void trySomething(Promise promise) {
+    Helios x = INSTANCES.get("default");
+    promise.resolve(x.heliosGetBlockNumber());
+  }
+
 }

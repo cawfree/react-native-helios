@@ -38,32 +38,18 @@ public class HeliosModule extends ReactContextBaseJavaModule {
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
   public void start(ReadableMap params, Promise promise) {
+    Helios helios = new Helios();
 
-    //new Thread(new Runnable() {
-    //  @Override
-    //  public void run() {
-        Helios helios = new Helios();
+    // TODO: consider launching this from a thread instead
+    helios.heliosStart(
+      params.getString("untrusted_rpc_url"),
+      params.getString("consensus_rpc_url")
+    );
 
-        // TODO: consider launching this from a thread instead
-        helios.heliosStart(
-          params.getString("untrusted_rpc_url"),
-          params.getString("consensus_rpc_url")
-        );
+    // Ensure we escape garbage collection.
+    INSTANCES.put("default", helios);
 
-        // TODO: get block number next
-
-        // Ensure we escape garbage collection.
-        INSTANCES.put("default", helios);
-
-        promise.resolve("");
-      }
-  //  }).start();
-  //}
-
-  @ReactMethod
-  public void trySomething(Promise promise) {
-    Helios x = INSTANCES.get("default");
-    promise.resolve(x.heliosGetBlockNumber());
+    promise.resolve("");
   }
 
 }

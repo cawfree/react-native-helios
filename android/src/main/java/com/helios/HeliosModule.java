@@ -17,7 +17,9 @@ import java.util.Map;
 
 @ReactModule(name = HeliosModule.NAME)
 public class HeliosModule extends ReactContextBaseJavaModule {
-  static { System.loadLibrary("helios"); }
+  static {
+    System.loadLibrary("helios");
+  }
 
   public static final String NAME = "Helios";
   private static Map<String, Helios> INSTANCES = new HashMap();
@@ -37,9 +39,9 @@ public class HeliosModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void start(ReadableMap params, Promise promise) {
 
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
+    //new Thread(new Runnable() {
+    //  @Override
+    //  public void run() {
         Helios helios = new Helios();
 
         // TODO: consider launching this from a thread instead
@@ -53,21 +55,25 @@ public class HeliosModule extends ReactContextBaseJavaModule {
         // Ensure we escape garbage collection.
         INSTANCES.put("default", helios);
 
-        Log.d("cawfree", "about to test up here");
-
-        String nextBlockNumber = helios.heliosGetBlockNumber();
-
-        Log.d("cawfree", "now the block number is "+nextBlockNumber);
-
-        promise.resolve("");
+        //while (true) {
+        //  try {
+        //    Log.d("cawfree", "about to test up here");
+        //    String nextBlockNumber = helios.heliosGetBlockNumber();
+        //    Log.d("cawfree", "now the block number is "+nextBlockNumber);
+        //    Thread.sleep(2000);
+        //  } catch (InterruptedException e) {
+        //    e.printStackTrace();
+        //  }
+        //}
+        //promise.resolve("");
       }
-    }).start();
-  }
+  //  }).start();
+  //}
 
   @ReactMethod
   public void trySomething(Promise promise) {
-    Helios x = INSTANCES.get("default");
-    promise.resolve(x.heliosGetBlockNumber());
+    //Helios x = INSTANCES.get("default");
+    promise.resolve("");//x.heliosGetBlockNumber());
   }
 
 }

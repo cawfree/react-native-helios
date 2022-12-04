@@ -37,22 +37,23 @@ export default function App() {
           try {
             const maybeBlockNumber = await NativeModules.Helios.trySomething();
             console.warn('block number is', maybeBlockNumber);
-            //const provider = await ethers.providers.getDefaultProvider(
-            //  `http://${
-            //    Platform.OS === 'android' ? '10.0.2.2' : '127.0.0.1'
-            //  }:8545`
-            //);
+            const provider = await ethers.providers.getDefaultProvider(
+              `http://${
+                '127.0.0.1'
+                //Platform.OS === 'android' ? '10.0.2.2' : '127.0.0.1'
+              }:8545`
+            );
 
-            //const [blockNumber, balance] = await Promise.all([
-            //  provider.getBlockNumber(),
-            //  provider.getBalance('0x312e71162Df834A87a2684d30562b94816b0f072'),
-            //]);
+            const [blockNumber, balance] = await Promise.all([
+              provider.getBlockNumber(),
+              provider.getBalance('0x312e71162Df834A87a2684d30562b94816b0f072'),
+            ]);
 
-            //console.warn(
-            //  `Block number is: ${blockNumber} and balance is ${ethers.utils.formatEther(
-            //    balance
-            //  )}Ξ!`
-            //);
+            console.warn(
+              `Block number is: ${blockNumber} and balance is ${ethers.utils.formatEther(
+                balance
+              )}Ξ!`
+            );
           } catch (e) {
             console.error(e);
           }

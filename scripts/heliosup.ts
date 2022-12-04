@@ -586,7 +586,7 @@ const onFinish = () => {
 
 void (async () => {
   try {
-    //new AppleHeliosFactory().compile();
+    new AppleHeliosFactory().compile();
     new AndroidHeliosFactory().compile();
 
     onFinish();

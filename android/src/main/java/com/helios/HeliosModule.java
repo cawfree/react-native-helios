@@ -1,7 +1,5 @@
 package com.helios;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.Promise;
@@ -14,6 +12,9 @@ import com.facebook.react.bridge.ReadableMap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 
 @ReactModule(name = HeliosModule.NAME)
 public class HeliosModule extends ReactContextBaseJavaModule {
@@ -23,6 +24,7 @@ public class HeliosModule extends ReactContextBaseJavaModule {
 
   public static final String NAME = "Helios";
   private static Map<String, Helios> INSTANCES = new HashMap();
+  private static ExecutorService EXECUTOR = Executors.newFixedThreadPool(1);
 
   public HeliosModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -34,22 +36,19 @@ public class HeliosModule extends ReactContextBaseJavaModule {
     return NAME;
   }
 
-  // Example method
-  // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
   public void start(ReadableMap params, Promise promise) {
     Helios helios = new Helios();
-
-    // TODO: consider launching this from a thread instead
-    helios.heliosStart(
-      params.getString("untrusted_rpc_url"),
-      params.getString("consensus_rpc_url")
-    );
-
     // Ensure we escape garbage collection.
     INSTANCES.put("default", helios);
 
-    promise.resolve("");
+    EXECUTOR.execute(new Runnable() { @Override public void run() {
+      helios.heliosStart(
+        params.getString("untrusted_rpc_url"),
+        params.getString("consensus_rpc_url")
+      );
+      promise.resolve("");
+    } });
   }
 
 }

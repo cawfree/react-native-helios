@@ -1,8 +1,12 @@
 import * as React from 'react';
 
-import { Platform, StyleSheet, View } from 'react-native';
+import { Image, Platform, StyleSheet, Text, View } from 'react-native';
 import { start } from 'react-native-helios';
 import { ethers } from 'ethers';
+
+const url = `http://${
+  Platform.OS === 'android' ? 'localhost' : '127.0.0.1'
+}:8545`;
 
 export default function App() {
   React.useEffect(
@@ -17,11 +21,7 @@ export default function App() {
             consensus_rpc_url: 'https://www.lightclientdata.org',
           });
 
-          const provider = await ethers.providers.getDefaultProvider(
-            `http://${
-              Platform.OS === 'android' ? 'localhost' : '127.0.0.1'
-            }:8545`
-          );
+          const provider = await ethers.providers.getDefaultProvider(url);
 
           const [blockNumber, balance] = await Promise.all([
             provider.getBlockNumber(),
@@ -40,7 +40,17 @@ export default function App() {
     []
   );
 
-  return <View style={styles.container} />;
+  return (
+    <View style={styles.container}>
+      <Image
+        source={{
+          uri: 'https://github.com/cawfree/web3-react-native/raw/master/public/logo.png',
+        }}
+        style={{ width: 100, height: 100 }}
+      />
+      <Text children={`Your RPC is running on ${url}.`} />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

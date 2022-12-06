@@ -1,6 +1,6 @@
 # react-native-helios
 
-> ⚠️ Currently `react-native-helios` only supports execution on iOS and Android.
+> ⚠️ Currently `react-native-helios` only supports execution on iOS, MacOS and Android.
 
 Throughout the majority of [__Ethereum__](https://ethereum.org/en/)'s history, frontend applications have been forced to rely upon centralized interfaces like [__Infura__](https://www.infura.io/) to access the decentralized network. This is because to act as a meaningful participant to the network, such as an entity capable of submitting transactions or maintaining a verifiable history the network state, the protocol's current design [__demands high device specifications__](https://youtu.be/0stc9jnQLXA?t=136) that are insurmountable for even top-end mobile devices.
 

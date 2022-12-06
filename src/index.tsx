@@ -18,6 +18,7 @@ const Helios = NativeModules.Helios
     );
 
 export type StartParams = {
+  readonly rpc_port: number;
   readonly untrusted_rpc_url: string;
   readonly consensus_rpc_url: string;
 };

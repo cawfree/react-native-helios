@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 import * as fs from 'fs';
 import * as path from 'path';
 import * as child_process from 'child_process';
@@ -581,8 +583,16 @@ const onFinish = () => {
 
 void (async () => {
   try {
-    new AppleHeliosFactory().compile();
-    new AndroidHeliosFactory().compile();
+    const { ANDROID_DISABLED, APPLE_DISABLED } = process.env as Partial<{
+      readonly ANDROID_DISABLED: string;
+      readonly APPLE_DISABLED: string;
+    }>;
+
+    const androidIsDisabled = ANDROID_DISABLED === String(true);
+    const appleIsDisabled = APPLE_DISABLED == String(true);
+
+    !appleIsDisabled && new AppleHeliosFactory().compile();
+    !androidIsDisabled && new AndroidHeliosFactory().compile();
 
     onFinish();
   } catch (e) {

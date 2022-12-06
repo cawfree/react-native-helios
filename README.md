@@ -87,7 +87,7 @@ yarn ; yarn heliosup
 > For Android, we use [`flapigen`](https://github.com/Dushistov/flapigen-rs) and [rifgen](https://docs.rs/rifgen/latest/rifgen/) to synthesize a runtime-compatible interface. Currently, only the build architectures `arm64_v8a` and `x86_64` are supported.
 >
 
-3. Finally, open up [`example.xcworkspace`](./example/ios) and hit play ▶.
+3. Finally, run the [__Example Project__](./example).
 
 ## License ✌️
 

@@ -4,9 +4,11 @@ import { Image, Platform, StyleSheet, Text, View } from 'react-native';
 import { start } from 'react-native-helios';
 import { ethers } from 'ethers';
 
+const rpc_port = 8545;
+
 const url = `http://${
   Platform.OS === 'android' ? 'localhost' : '127.0.0.1'
-}:8545`;
+}:${rpc_port}`;
 
 export default function App() {
   React.useEffect(
@@ -14,6 +16,7 @@ export default function App() {
       void (async () => {
         try {
           await start({
+            rpc_port,
             // If you encounter any errors, please try creating your own Alchemy key.
             untrusted_rpc_url:
               // https://github.com/scaffold-eth/scaffold-eth/blob/db24f28d1121468a08e7eed9affee43b0987aa10/packages/react-app/src/constants.js#L10

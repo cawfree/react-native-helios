@@ -45,7 +45,8 @@ public class HeliosModule extends ReactContextBaseJavaModule {
     EXECUTOR.execute(new Runnable() { @Override public void run() {
       helios.heliosStart(
         params.getString("untrusted_rpc_url"),
-        params.getString("consensus_rpc_url")
+        params.getString("consensus_rpc_url"),
+        params.getDouble("rpc_port")
       );
       promise.resolve("");
     } });

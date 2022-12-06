@@ -479,11 +479,6 @@ class AndroidHeliosFactory extends HeliosFactory {
         '',
         '  swig_gen.expand("android bindings", &in_src, &out_src);',
         '',
-        //'  let new = fs::read_to_string(&out_src).unwrap().replace(',
-        //'    "Helios::helios_start(this, untrusted_rpc_url, consensus_rpc_url)",',
-        //'    "Helios::helios_start(this, untrusted_rpc_url, consensus_rpc_url).await",',
-        //'  );',
-        //'  fs::write(&out_src, new).expect("Unable to write file");',
         '}',
       ].join('\n')
     );

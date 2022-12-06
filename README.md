@@ -84,7 +84,7 @@ yarn ; yarn heliosup
 
 > For iOS, we leverage [`swift-bridge`](https://github.com/chinedufn/swift-bridge) and [`cargo-lipo`](https://github.com/TimNN/cargo-lipo) to automatically generate a [__Swift__](https://developer.apple.com/swift/)-compatible [__Native Module__](https://reactnative.dev/docs/native-modules-intro) which bridges into the original [__Rust__](https://www.rust-lang.org/) client. To support the `arm64` architecture for both simulated and physical iOS devices, the target-specific static libraries are repackaged into an [`XCFramework`](https://medium.com/trueengineering/xcode-and-xcframeworks-new-format-of-packing-frameworks-ca15db2381d3).
 > 
-> For Android, we use [`flapigen`](https://github.com/Dushistov/flapigen-rs) and [rifgen](https://docs.rs/rifgen/latest/rifgen/) to synthesize a runtime-compatible interface. Currently, only the build architectures `arm64_v8a` and `x86_64` are supported.
+> For Android, we use [`flapigen`](https://github.com/Dushistov/flapigen-rs) and [`rifgen`](https://docs.rs/rifgen/latest/rifgen/) to synthesize a runtime-compatible interface. Currently, only the build architectures `arm64_v8a` and `x86_64` are supported.
 >
 
 3. Finally, run the [__Example Project__](./example).

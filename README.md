@@ -32,7 +32,6 @@ To instantiate a trustless [__JSON-RPC__](https://ethereum.org/en/developers/doc
 import { start } from 'react-native-helios';
 
 await start({
-  rpc_port: 8545,
   untrusted_rpc_url:
     'https://eth-mainnet.g.alchemy.com/v2/<your-alchemy-key>', // source of initial proofs
   consensus_rpc_url: 'https://www.lightclientdata.org',

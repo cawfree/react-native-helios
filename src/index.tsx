@@ -18,11 +18,15 @@ const Helios = NativeModules.Helios
     );
 
 export type StartParams = {
-  readonly rpc_port: number;
+  readonly rpc_port?: number;
   readonly untrusted_rpc_url: string;
   readonly consensus_rpc_url: string;
 };
 
-export function start(params: StartParams): Promise<void> {
-  return Helios.start(params);
+export function start({
+  rpc_port: maybeRpcPort,
+  ...extras
+}: StartParams): Promise<void> {
+  const rpc_port = typeof maybeRpcPort === 'number' ? maybeRpcPort : 8545;
+  return Helios.start({ ...extras, rpc_port });
 }

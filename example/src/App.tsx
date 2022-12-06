@@ -4,7 +4,8 @@ import { Image, Platform, StyleSheet, Text, View } from 'react-native';
 import { start } from 'react-native-helios';
 import { ethers } from 'ethers';
 
-const rpc_port = 8546;
+const rpc_port = 8545;
+
 const url = `http://${
   Platform.OS === 'android' ? 'localhost' : '127.0.0.1'
 }:${rpc_port}`;

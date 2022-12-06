@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as child_process from 'child_process';
 
-const rust_version = 'nightly-2022-01-18';
+const rust_version = 'nightly-2022-11-18';
 const name = 'helios';
 const helios_checksum = '4c72344b55991b6296ccbb12b3c9e3ad634d593e';
 const openssl_sys_checksum = 'b30313a9775ed861ce9456745952e3012e5602ea';

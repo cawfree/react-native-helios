@@ -1,8 +1,8 @@
 # react-native-helios
 
-> ⚠️ Currently `react-native-helios` only supports execution on iOS and Android.
+> ⚠️ Currently `react-native-helios` only supports execution on iOS, MacOS and Android.
 
-Throughout the majority of [__Ethereum__](https://ethereum.org/en/)'s history, frontend applications have been forced to rely upon centralized interfaces like [__Infura__](https://www.infura.io/) to access the decentralized network. This is because to be a meaningful participant in the decentralized network, such as an entity capable of submitting transactions or maintaining a verifiable history the network state, the protocol's current design [__demands high device specifications__](https://youtu.be/0stc9jnQLXA?t=136) that are insurmountable for even top-end mobile devices.
+Throughout the majority of [__Ethereum__](https://ethereum.org/en/)'s history, frontend applications have been forced to rely upon centralized interfaces like [__Infura__](https://www.infura.io/) to access the decentralized network. This is because to act as a meaningful participant to the network, such as an entity capable of submitting transactions or maintaining a verifiable history the network state, the protocol's current design [__demands high device specifications__](https://youtu.be/0stc9jnQLXA?t=136) that are insurmountable for even top-end mobile devices.
 
 This reliance on third party infrastructure typically aided the delivery of ethereum frontend applications, but is subject to the pitfalls of all centralized systems; susceptibility to downtime and subservience to censorship and monetization.
 
@@ -25,8 +25,6 @@ Much like the proposed design of the [__Portal Network__](https://www.ethportal.
 ```sh
 yarn add react-native-helios
 ```
-
-By leveraging [`swift-bridge`](https://github.com/chinedufn/swift-bridge), we can automatically generate an [__Swift__](https://developer.apple.com/swift/)-compatible [__Native Module__](https://reactnative.dev/docs/native-modules-intro) which bridges into the original [__Rust__](https://www.rust-lang.org/) client and executes this on your mobile device.
 
 To instantiate a trustless [__JSON-RPC__](https://ethereum.org/en/developers/docs/apis/json-rpc/#:~:text=JSON%2DRPC%20is%20a%20stateless,many%20various%20message%20passing%20environments.), we merely need to call the `start()` method:
 
@@ -68,7 +66,7 @@ console.log(
 
 ## Building from source 🏗
 
-> __Note__ Currently, [`react-native-helios`](https://github.com/cawfree/react-native-helios) may only be compiled on Apple Silicon based Macs.
+> __Note__ Currently, [`react-native-helios`](https://github.com/cawfree/react-native-helios) may only be compiled on Apple Silicon.
 
 1. Make sure you've installed [`rustup`](https://www.rust-lang.org/tools/install):
 
@@ -84,11 +82,12 @@ cd react-native-helios
 yarn ; yarn heliosup
 ```
 
-> Once this task has completed, the rust library dependencies will be compiled for iOS using [`cargo-lipo`](https://github.com/TimNN/cargo-lipo), a runtime-compatible bridge interface for the generated binaries will be exported by [`swift-bridge`](https://github.com/chinedufn/swift-bridge), and the [`example/`](./example) project's [__pods__](https://cocoapods.org/) directory will be populated with the new library binaries. For Android, we use [`flapigen`](https://github.com/Dushistov/flapigen-rs) to synthesize a runtime-compatible interface.
+> For iOS, we leverage [`swift-bridge`](https://github.com/chinedufn/swift-bridge) and [`cargo-lipo`](https://github.com/TimNN/cargo-lipo) to automatically generate a [__Swift__](https://developer.apple.com/swift/)-compatible [__Native Module__](https://reactnative.dev/docs/native-modules-intro) which bridges into the original [__Rust__](https://www.rust-lang.org/) client. To support the `arm64` architecture for both simulated and physical iOS devices, the target-specific static libraries are repackaged into an [`XCFramework`](https://medium.com/trueengineering/xcode-and-xcframeworks-new-format-of-packing-frameworks-ca15db2381d3).
+> 
+> For Android, we use [`flapigen`](https://github.com/Dushistov/flapigen-rs) and [rifgen](https://docs.rs/rifgen/latest/rifgen/) to synthesize a runtime-compatible interface. Currently, only the build architectures `arm64_v8a` and `x86_64` are supported.
 >
-> To support the `arm64` architecture for both simulated and physical iOS devices, the target-specific static libraries are repackaged into an [`XCFramework`](https://medium.com/trueengineering/xcode-and-xcframeworks-new-format-of-packing-frameworks-ca15db2381d3).
 
-3. Finally, open up [`example.xcworkspace`](./example/ios) and hit play ▶.
+3. Finally, run the [__Example Project__](./example).
 
 ## License ✌️
 

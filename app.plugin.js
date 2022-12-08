@@ -7,13 +7,9 @@ const {
 const { name, version } = require('./package.json');
 
 const withHelios = (config, {}) => {
-  // Ensure the objects exist
-  if (!config.ios) {
-    config.ios = {};
-  }
-  if (!config.ios.infoPlist) {
-    config.ios.infoPlist = {};
-  }
+  if (!config.ios) config.ios = {};
+
+  if (!config.ios.infoPlist) config.ios.infoPlist = {};
 
   const androidPermissions = [];
 

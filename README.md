@@ -107,5 +107,8 @@ yarn ; yarn heliosup
 3. Once that's done, use `npx expo prebuild` to generate Expo-friendly native binaries.
 4. Finally, run `eas build` to build a new binary.
 
+> Note:
+> To run `eas build`, you'll need to `npm install --global expo-cli eas-cli`.
+
 ## License ✌️
 [__MIT__](./LICENSE)

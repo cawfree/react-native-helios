@@ -38,19 +38,37 @@ public class HeliosModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void start(ReadableMap params, Promise promise) {
+    Double rpc_port = params.getDouble("rpc_port");
+    String key = rpc_port.toString();
+
     Helios helios = new Helios();
-    // Ensure we escape garbage collection.
-    INSTANCES.put("default", helios);
 
     EXECUTOR.execute(new Runnable() { @Override public void run() {
       helios.heliosStart(
         params.getString("untrusted_rpc_url"),
         params.getString("consensus_rpc_url"),
-        params.getDouble("rpc_port"),
+        rpc_port,
         params.getString("network")
       );
+
+      INSTANCES.put(key, helios);
       promise.resolve("");
     } });
   }
+
+  @ReactMethod
+    public void shutdown(ReadableMap params, Promise promise) {
+      Double rpc_port = params.getDouble("rpc_port");
+      String key = rpc_port.toString();
+
+      Helios helios = INSTANCES.get(key);
+
+      EXECUTOR.execute(new Runnable() { @Override public void run() {
+          helios.heliosShutdown();
+
+          INSTANCES.remove(key);
+          promise.resolve("");
+        } });
+      }
 
 }

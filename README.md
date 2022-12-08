@@ -31,13 +31,17 @@ To instantiate a trustless [__JSON-RPC__](https://ethereum.org/en/developers/doc
 ```typescript
 import { start } from 'react-native-helios';
 
-await start({
+const { shutdown } = await start({
   untrusted_rpc_url:
     'https://eth-mainnet.g.alchemy.com/v2/<your-alchemy-key>', // source of initial proofs
   consensus_rpc_url: 'https://www.lightclientdata.org',
 });
 
 console.log("Ready!");
+
+// ...
+
+await shutdown();
 ```
 
 This will establish a JSON-RPC on your device running at `http://127.0.0.1:8485`, which can then be interacted like usual using [`ethers`](https://github.com/ethers-io/ethers.js/):

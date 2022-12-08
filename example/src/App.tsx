@@ -1,57 +1,70 @@
 import * as React from 'react';
 
-import { Image, Platform, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, View, Platform } from 'react-native';
 import { Network, start, StartParams } from 'react-native-helios';
 import { ethers } from 'ethers';
 
-const ENVIRONMENTS: {
-  readonly [key in Network]: Pick<
-    StartParams,
-    'untrusted_rpc_url' | 'consensus_rpc_url'
-  >;
-} = {
-  [Network.MAINNET]: {
+const ENVIRONMENTS: readonly StartParams[] = [
+  {
+    network: Network.MAINNET,
     consensus_rpc_url: 'https://www.lightclientdata.org',
     untrusted_rpc_url:
       'https://eth-mainnet.g.alchemy.com/v2/pPwfAKdQqDr1OP-z5Txzmlk0YE1UvAQT',
+    rpc_port: 8545,
   },
-  [Network.GOERLI]: {
+  {
+    network: Network.GOERLI,
     consensus_rpc_url: 'http://testing.prater.beacon-api.nimbus.team',
     untrusted_rpc_url:
       'https://eth-goerli.g.alchemy.com/v2/LyCUMBtAaTf03kVgcjPvW22KkwuKigZY',
+    rpc_port: 8546,
   },
-};
-
-const network: Network = Network.MAINNET;
-const rpc_port = 8545;
-
-const url = `http://${
-  Platform.OS === 'android' ? 'localhost' : '127.0.0.1'
-}:${rpc_port}`;
+];
 
 export default function App() {
   React.useEffect(
     () =>
       void (async () => {
         try {
-          await start({
-            ...ENVIRONMENTS[network],
-            network,
-            rpc_port,
-          });
+          const shutdowns = await Promise.all(
+            ENVIRONMENTS.map((params) =>
+              start(params).then(({ shutdown }) => shutdown)
+            )
+          );
 
-          const provider = await ethers.providers.getDefaultProvider(url);
+          const urls = ENVIRONMENTS.map(
+            ({ rpc_port }) =>
+              `http://${
+                Platform.OS === 'android' ? 'localhost' : '127.0.0.1'
+              }:${rpc_port}`
+          );
 
-          const [blockNumber, balance] = await Promise.all([
-            provider.getBlockNumber(),
-            provider.getBalance('0x312e71162Df834A87a2684d30562b94816b0f072'),
-          ]);
+          const providers = await Promise.all(
+            urls.map((url) => ethers.providers.getDefaultProvider(url))
+          );
+
+          const blockNumbers = await Promise.all(
+            providers.map((provider) => provider.getBlockNumber())
+          );
 
           console.warn(
-            `Block number is: ${blockNumber} and balance is ${ethers.utils.formatEther(
-              balance
-            )}Ξ!`
+            blockNumbers.map((blockNumber) => blockNumber.toString())
           );
+
+          await Promise.all(shutdowns.map((shutdown) => shutdown()));
+
+          const didTerminates = await Promise.all(
+            providers.map((provider) =>
+              provider
+                .getBlockNumber()
+                .then(() => false)
+                .catch(() => true)
+            )
+          );
+
+          if (didTerminates.reduce((e, f) => e && f, true)) return;
+
+          throw new Error('Failed to terminate.');
         } catch (e) {
           console.error(e);
         }
@@ -67,7 +80,6 @@ export default function App() {
         }}
         style={{ width: 100, height: 100 }}
       />
-      <Text children={`Your RPC is running on ${url}.`} />
     </View>
   );
 }

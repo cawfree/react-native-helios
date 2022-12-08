@@ -8,12 +8,6 @@
   "react-native": "src/index",
   "source": "src/index",
   "files": [
-    "src",
-    "lib",
-    "android",
-    "ios",
-    "cpp",
-    "*.podspec",
     "!lib/typescript/example",
     "!ios/build",
     "!android/build",
@@ -23,8 +17,7 @@
     "!android/local.properties",
     "!**/__tests__",
     "!**/__fixtures__",
-    "!**/__mocks__",
-    "!**/.*"
+    "!**/__mocks__"
   ],
   "scripts": {
     "heliosup": "npx ts-node scripts/heliosup",

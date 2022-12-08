@@ -96,7 +96,7 @@ yarn ; yarn heliosup
 
 ```json
 {
-  "name": "my-expo-dapp",
+  "name": "my-app",
   "plugins": [
     [
       "react-native-helios",

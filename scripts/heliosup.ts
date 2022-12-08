@@ -31,11 +31,11 @@ const arm64_v8a = path.resolve(libs, 'arm64-v8a');
 const x86_64 = path.resolve(libs, 'x86_64');
 
 const getSelectedNetwork = () => [
-  '  let selectedNetwork = match network {',
-  '    "MAINNET" => networks::Network::MAINNET,',
-  '    "GOERLI" => networks::Network::GOERLI,',
-  '    _ => panic!("Unknown network!"),',
-  '  },',
+  '    let selectedNetwork = match network.as_str() {',
+  '      "MAINNET" => networks::Network::MAINNET,',
+  '      "GOERLI" => networks::Network::GOERLI,',
+  '      _ => panic!("Unknown network!"),',
+  '    };',
 ];
 
 abstract class HeliosFactory {

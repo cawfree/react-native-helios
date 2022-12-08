@@ -25,7 +25,7 @@ class Helios: NSObject {
                 (untrusted_rpc_url as! String),
                 (consensus_rpc_url as! String),
                 (rpc_port as! Double),
-                (network as! String),
+                (network as! String)
               );
               resolve("");
           }

@@ -1,8 +1,26 @@
 import * as React from 'react';
 
 import { Image, Platform, StyleSheet, Text, View } from 'react-native';
-import { Network, start } from 'react-native-helios';
+import { Network, start, StartParams } from 'react-native-helios';
 import { ethers } from 'ethers';
+
+const ENVIRONMENTS: {
+  readonly [key in Network]: Pick<
+    StartParams,
+    'untrusted_rpc_url' | 'consensus_rpc_url'
+  >;
+} = {
+  [Network.MAINNET]: {
+    consensus_rpc_url: 'https://www.lightclientdata.org',
+    untrusted_rpc_url:
+      'https://eth-mainnet.g.alchemy.com/v2/pPwfAKdQqDr1OP-z5Txzmlk0YE1UvAQT',
+  },
+  [Network.GOERLI]: {
+    consensus_rpc_url: 'http://testing.prater.beacon-api.nimbus.team',
+    untrusted_rpc_url:
+      'https://eth-goerli.g.alchemy.com/v2/LyCUMBtAaTf03kVgcjPvW22KkwuKigZY',
+  },
+};
 
 const network: Network = Network.MAINNET;
 const rpc_port = 8545;
@@ -17,13 +35,9 @@ export default function App() {
       void (async () => {
         try {
           await start({
+            ...ENVIRONMENTS[network],
             network,
             rpc_port,
-            // If you encounter any errors, please try creating your own Alchemy key.
-            untrusted_rpc_url:
-              // https://github.com/scaffold-eth/scaffold-eth/blob/db24f28d1121468a08e7eed9affee43b0987aa10/packages/react-app/src/constants.js#L10
-              'https://eth-mainnet.g.alchemy.com/v2/oKxs-03sij-U_N0iOlrSsZFr29-IqbuF',
-            consensus_rpc_url: 'https://www.lightclientdata.org',
           });
 
           const provider = await ethers.providers.getDefaultProvider(url);

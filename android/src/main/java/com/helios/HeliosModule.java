@@ -47,7 +47,7 @@ public class HeliosModule extends ReactContextBaseJavaModule {
         params.getString("untrusted_rpc_url"),
         params.getString("consensus_rpc_url"),
         params.getDouble("rpc_port"),
-        params.getString("network"),
+        params.getString("network")
       );
       promise.resolve("");
     } });

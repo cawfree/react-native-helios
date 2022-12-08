@@ -1,1 +1,5 @@
 example/
+build/
+!ios/libhelios.h
+!ios/SwiftBridgeCore.swift
+!ios/libhelios.xcframework

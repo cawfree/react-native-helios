@@ -29,13 +29,24 @@ export type StartParams = {
   readonly consensus_rpc_url: string;
 };
 
-export function start({
+export type StartResult = {
+  readonly shutdown: () => Promise<void>;
+};
+
+export async function start({
   network: maybeNetwork,
   rpc_port: maybeRpcPort,
   ...extras
-}: StartParams): Promise<void> {
+}: StartParams): Promise<StartResult> {
   const network =
     typeof maybeNetwork === 'string' ? maybeNetwork : Network.MAINNET;
   const rpc_port = typeof maybeRpcPort === 'number' ? maybeRpcPort : 8545;
-  return Helios.start({ ...extras, rpc_port, network });
+
+  await Helios.start({ ...extras, rpc_port, network });
+
+  const shutdown = async () => {
+    await Helios.shutdown({ rpc_port });
+  };
+
+  return { shutdown };
 }

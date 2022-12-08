@@ -32,8 +32,6 @@ export default function App() {
             )
           );
 
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-
           const urls = ENVIRONMENTS.map(
             ({ rpc_port }) =>
               `http://${

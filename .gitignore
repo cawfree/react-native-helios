@@ -68,3 +68,7 @@ lib/
 
 # webstorm
 .idea/
+
+# npm pack
+*.tgz
+

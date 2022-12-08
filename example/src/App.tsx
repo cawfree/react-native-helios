@@ -27,7 +27,9 @@ export default function App() {
       void (async () => {
         try {
           const results = await Promise.all(ENVIRONMENTS.map(start));
+
           const shutdowns = results.map(({ shutdown }) => shutdown);
+
           const urls = ENVIRONMENTS.map(
             ({ rpc_port }) =>
               `http://${
@@ -35,29 +37,32 @@ export default function App() {
               }:${rpc_port}`
           );
 
-          const [mainnet, goerli] = urls.map((url) =>
+          const providers = urls.map((url) =>
             ethers.providers.getDefaultProvider(url)
           );
 
-          const [mainnetBlockNumber, goerliBlockNumber] = await Promise.all([
-            mainnet!.getBlockNumber(),
-            goerli!.getBlockNumber(),
-          ]);
+          const blockNumbers = await Promise.all(
+            providers.map((provider) => provider.getBlockNumber())
+          );
 
           console.warn(
-            `Mainnet: #${mainnetBlockNumber.toString()}, Goerli: #${goerliBlockNumber.toString()}`
+            blockNumbers.map((blockNumber) => blockNumber.toString())
           );
 
           await Promise.all(shutdowns.map((shutdown) => shutdown()));
 
-          mainnet!
-            .getBlockNumber()
-            .then(() => console.warn('failed mainnet'))
-            .catch(() => console.warn('mainnet did fail successfully'));
-          goerli!
-            .getBlockNumber()
-            .then(() => console.warn('failed goerli'))
-            .catch(() => console.warn('goerli did fail successfully'));
+          const didTerminates = await Promise.all(
+            providers.map((provider) =>
+              provider
+                .getBlockNumber()
+                .then(() => false)
+                .catch(() => true)
+            )
+          );
+
+          if (didTerminates.reduce((e, f) => e && f, true)) return;
+
+          throw new Error('Failed to terminate.');
         } catch (e) {
           console.error(e);
         }

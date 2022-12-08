@@ -30,6 +30,14 @@ const arm64_v8a = path.resolve(libs, 'arm64-v8a');
 //const x86 = path.resolve(libs, 'x86');
 const x86_64 = path.resolve(libs, 'x86_64');
 
+const getSelectedNetwork = () => [
+  '  let selectedNetwork = match network {',
+  '    "MAINNET" => networks::Network::MAINNET,',
+  '    "GOERLI" => networks::Network::GOERLI,',
+  '    _ => panic!("Unknown network!"),',
+  '  },',
+];
+
 abstract class HeliosFactory {
   private static prepareBuildDir(): void {
     fs.existsSync(build) && fs.rmSync(build, { recursive: true });
@@ -194,7 +202,13 @@ class AppleHeliosFactory extends HeliosFactory {
       '    #[swift_bridge(init)]',
       '    fn new() -> RustApp;',
       '',
-      '    async fn helios_start(&mut self, untrusted_rpc_url: String, consensus_rpc_url: String, rpc_port: f64);',
+      '    async fn helios_start(',
+      '      &mut self,',
+      '      untrusted_rpc_url: String,',
+      '      consensus_rpc_url: String,',
+      '      rpc_port: f64,',
+      '      network: String,',
+      ');',
       '  }',
       '}',
       '',
@@ -211,9 +225,11 @@ class AppleHeliosFactory extends HeliosFactory {
       '    untrusted_rpc_url: String,',
       '    consensus_rpc_url: String,',
       '    rpc_port: f64,',
+      '    network: String,',
       '  ) {',
+      ...getSelectedNetwork(),
       '    let mut client = ClientBuilder::new()',
-      '      .network(networks::Network::MAINNET)',
+      '      .network(selectedNetwork)',
       '      .execution_rpc(&untrusted_rpc_url)',
       '      .consensus_rpc(&consensus_rpc_url)',
       '      .rpc_port((rpc_port as i16).try_into().unwrap())',
@@ -527,10 +543,12 @@ class AndroidHeliosFactory extends HeliosFactory {
       '    untrusted_rpc_url: String,',
       '    consensus_rpc_url: String,',
       '    rpc_port: f64,',
+      '    network: String,',
       '  ) {',
+      ...getSelectedNetwork(),
       '    self.runtime.block_on(async {',
       '      let mut client = ClientBuilder::new()',
-      '        .network(networks::Network::MAINNET)',
+      '        .network(selectedNetwork)',
       '        .consensus_rpc(&consensus_rpc_url)',
       '        .execution_rpc(&untrusted_rpc_url)',
       '        .rpc_port((rpc_port as i16).try_into().unwrap())',

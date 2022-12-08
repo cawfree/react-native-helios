@@ -17,16 +17,25 @@ const Helios = NativeModules.Helios
       }
     );
 
+export enum Network {
+  MAINNET = 'MAINNET',
+  GOERLI = 'GOERLI',
+}
+
 export type StartParams = {
+  readonly network?: Network;
   readonly rpc_port?: number;
   readonly untrusted_rpc_url: string;
   readonly consensus_rpc_url: string;
 };
 
 export function start({
+  network: maybeNetwork,
   rpc_port: maybeRpcPort,
   ...extras
 }: StartParams): Promise<void> {
+  const network =
+    typeof maybeNetwork === 'string' ? maybeNetwork : Network.MAINNET;
   const rpc_port = typeof maybeRpcPort === 'number' ? maybeRpcPort : 8545;
-  return Helios.start({ ...extras, rpc_port });
+  return Helios.start({ ...extras, rpc_port, network });
 }

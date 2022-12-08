@@ -1,9 +1,10 @@
 import * as React from 'react';
 
 import { Image, Platform, StyleSheet, Text, View } from 'react-native';
-import { start } from 'react-native-helios';
+import { Network, start } from 'react-native-helios';
 import { ethers } from 'ethers';
 
+const network: Network = Network.MAINNET;
 const rpc_port = 8545;
 
 const url = `http://${
@@ -16,6 +17,7 @@ export default function App() {
       void (async () => {
         try {
           await start({
+            network,
             rpc_port,
             // If you encounter any errors, please try creating your own Alchemy key.
             untrusted_rpc_url:

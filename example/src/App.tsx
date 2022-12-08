@@ -26,9 +26,13 @@ export default function App() {
     () =>
       void (async () => {
         try {
-          const results = await Promise.all(ENVIRONMENTS.map(start));
+          const shutdowns = await Promise.all(
+            ENVIRONMENTS.map((params) =>
+              start(params).then(({ shutdown }) => shutdown)
+            )
+          );
 
-          const shutdowns = results.map(({ shutdown }) => shutdown);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
 
           const urls = ENVIRONMENTS.map(
             ({ rpc_port }) =>
@@ -37,8 +41,8 @@ export default function App() {
               }:${rpc_port}`
           );
 
-          const providers = urls.map((url) =>
-            ethers.providers.getDefaultProvider(url)
+          const providers = await Promise.all(
+            urls.map((url) => ethers.providers.getDefaultProvider(url))
           );
 
           const blockNumbers = await Promise.all(

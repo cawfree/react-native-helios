@@ -1,6 +1,6 @@
 {
   "name": "react-native-helios",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "A cross-platform trustless Ethereum light client for React Native.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",

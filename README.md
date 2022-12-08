@@ -1,6 +1,6 @@
 # react-native-helios
 
-> ⚠️ Currently `react-native-helios` only supports execution on iOS, MacOS and Android.
+> ⚠️ Currently `react-native-helios` only supports execution on iOS, MacOS, Android and Expo.
 
 Throughout the majority of [__Ethereum__](https://ethereum.org/en/)'s history, frontend applications have been forced to rely upon centralized interfaces like [__Infura__](https://www.infura.io/) to access the decentralized network. This is because to act as a meaningful participant to the network, such as an entity capable of submitting transactions or maintaining a verifiable history the network state, the protocol's current design [__demands high device specifications__](https://youtu.be/0stc9jnQLXA?t=136) that are insurmountable for even top-end mobile devices.
 
@@ -89,6 +89,24 @@ yarn ; yarn heliosup
 
 3. Finally, run the [__Example Project__](./example).
 
-## License ✌️
+### Building with [Expo](https://expo.dev/) 📲
 
+1. You can install to your project using `expo install react-native-helios`.
+2. Next, you'll need to add the Helios plugin to your Expo config (`app.json`, `app.config.json` or `app.config.js`):
+
+```json
+{
+  "name": "my-expo-dapp",
+  "plugins": [
+    [
+      "react-native-helios",
+      {}
+    ]
+  ]
+}
+```
+3. Once that's done, use `expo prebuild` to generate Expo-friendly native binaries.
+4. Finally, run `eas build` to build a new binary.
+
+## License ✌️
 [__MIT__](./LICENSE)

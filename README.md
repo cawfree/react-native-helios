@@ -91,21 +91,20 @@ yarn ; yarn heliosup
 
 ### Building with [Expo](https://expo.dev/) 📲
 
-1. You can install to your project using `expo install react-native-helios`.
+1. You can install to your project using `npx expo install react-native-helios`.
 2. Next, you'll need to add the Helios plugin to your Expo config (`app.json`, `app.config.json` or `app.config.js`):
 
-```json
+```diff
 {
-  "name": "my-app",
-  "plugins": [
-    [
-      "react-native-helios",
-      {}
-    ]
-  ]
+  "expo": {
+    "name": "my-app",
++    "plugins": [
++      ["react-native-helios", {}]
++    ]
+  }
 }
 ```
-3. Once that's done, use `expo prebuild` to generate Expo-friendly native binaries.
+3. Once that's done, use `npx expo prebuild` to generate Expo-friendly native binaries.
 4. Finally, run `eas build` to build a new binary.
 
 ## License ✌️

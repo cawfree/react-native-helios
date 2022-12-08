@@ -6,7 +6,7 @@ import {
 } from '@expo/config-plugins';
 const pkg = require('../../package.json');
 
-type Props = {};
+type Props = Partial<{}>;
 
 const withHelios: ConfigPlugin<Props> = (config) => {
   if (config.ios == null) config.ios = {};

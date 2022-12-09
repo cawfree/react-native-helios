@@ -6,7 +6,7 @@ const {
 
 const { name, version } = require('./package.json');
 
-const withHelios = (config, {}) => {
+const withHelios = (config) => {
   if (!config.ios) config.ios = {};
 
   if (!config.ios.infoPlist) config.ios.infoPlist = {};

@@ -37,8 +37,9 @@
     "!android/build",
     "android/src/main/java/com/helios/*.java",
     "lib/*",
+    "src/*",
     "app.plugin.js",
-    "src/"
+    "react-native-helios.podspec"
   ],
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"

@@ -102,9 +102,9 @@ yarn ; yarn heliosup
 {
   "expo": {
     "name": "my-app",
-+    "plugins": [
-+      ["react-native-helios", {}]
-+    ]
++   "plugins": [
++     ["react-native-helios", {}]
++   ]
   }
 }
 ```

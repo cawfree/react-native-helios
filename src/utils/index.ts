@@ -1,5 +1,7 @@
 import { NativeModules, Platform } from 'react-native';
 
+import { StartParams, StartResult, Network } from '../@types';
+
 const LINKING_ERROR =
   `The package 'react-native-helios' doesn't seem to be linked. Make sure: \n\n` +
   Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
@@ -16,22 +18,6 @@ const Helios = NativeModules.Helios
         },
       }
     );
-
-export enum Network {
-  MAINNET = 'MAINNET',
-  GOERLI = 'GOERLI',
-}
-
-export type StartParams = {
-  readonly network?: Network;
-  readonly rpc_port?: number;
-  readonly untrusted_rpc_url: string;
-  readonly consensus_rpc_url: string;
-};
-
-export type StartResult = {
-  readonly shutdown: () => Promise<void>;
-};
 
 export async function start({
   network: maybeNetwork,

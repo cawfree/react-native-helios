@@ -308,6 +308,9 @@ class AppleHeliosFactory extends HeliosFactory {
       'cargo lipo --release',
       // https://gist.github.com/surpher/bbf88e191e9d1f01ab2e2bbb85f9b528#ios-simulator-arm64
       'cargo build -Z build-std --target aarch64-apple-ios-sim --release',
+
+      // Mac Catalyst
+      // TODO: https://nadim.computer/posts/2022-02-11-maccatalyst.html
     ];
   }
   protected handleBuildCompletion() {

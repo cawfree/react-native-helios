@@ -8,22 +8,23 @@ import {
   getHeliosProvider,
 } from 'react-native-helios';
 
-const ENVIRONMENTS: readonly StartParams[] = [
-  {
-    network: Network.MAINNET,
-    consensus_rpc_url: 'https://www.lightclientdata.org',
-    untrusted_rpc_url:
-      'https://eth-mainnet.g.alchemy.com/v2/pPwfAKdQqDr1OP-z5Txzmlk0YE1UvAQT',
-    rpc_port: 8545,
-  },
-  {
-    network: Network.GOERLI,
-    consensus_rpc_url: 'http://testing.prater.beacon-api.nimbus.team',
-    untrusted_rpc_url:
-      'https://eth-goerli.g.alchemy.com/v2/LyCUMBtAaTf03kVgcjPvW22KkwuKigZY',
-    rpc_port: 8546,
-  },
-];
+const ethereumMainnet: StartParams = {
+  network: Network.MAINNET,
+  consensus_rpc_url: 'https://www.lightclientdata.org',
+  untrusted_rpc_url:
+    'https://eth-mainnet.g.alchemy.com/v2/pPwfAKdQqDr1OP-z5Txzmlk0YE1UvAQT',
+  rpc_port: 8545,
+};
+
+const ethereumGoerli: StartParams = {
+  network: Network.GOERLI,
+  consensus_rpc_url: 'http://testing.prater.beacon-api.nimbus.team',
+  untrusted_rpc_url:
+    'https://eth-goerli.g.alchemy.com/v2/LyCUMBtAaTf03kVgcjPvW22KkwuKigZY',
+  rpc_port: 8546,
+};
+
+const ENVIRONMENTS: readonly StartParams[] = [ethereumMainnet, ethereumGoerli];
 
 export default function App() {
   React.useEffect(
@@ -46,6 +47,12 @@ export default function App() {
 
           console.warn(
             blockNumbers.map((blockNumber) => blockNumber.toString())
+          );
+
+          console.warn(
+            await getHeliosProvider(ethereumMainnet).getCode(
+              '0x00000000006c3852cbEf3e08E8dF289169EdE581'
+            )
           );
 
           await Promise.all(shutdowns.map((shutdown) => shutdown()));

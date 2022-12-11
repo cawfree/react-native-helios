@@ -6,7 +6,7 @@ import * as child_process from 'child_process';
 
 const rust_version = 'nightly';
 const name = 'helios';
-const helios_checksum = '4c72344b55991b6296ccbb12b3c9e3ad634d593e';
+const helios_checksum = 'e132706f0b9866fa0b40b3edb698103699d67e64';
 const openssl_sys_checksum = 'b30313a9775ed861ce9456745952e3012e5602ea';
 const stdio = 'inherit';
 const build = path.resolve('build');
@@ -234,6 +234,8 @@ class AppleHeliosFactory extends HeliosFactory {
       '      .execution_rpc(&untrusted_rpc_url)',
       '      .consensus_rpc(&consensus_rpc_url)',
       '      .rpc_port((rpc_port as i16).try_into().unwrap())',
+      // TODO: to boolean prop
+      '      .load_external_fallback()',
       '      .build()',
       '      .unwrap();',
       '',
@@ -563,6 +565,8 @@ class AndroidHeliosFactory extends HeliosFactory {
       '        .consensus_rpc(&consensus_rpc_url)',
       '        .execution_rpc(&untrusted_rpc_url)',
       '        .rpc_port((rpc_port as i16).try_into().unwrap())',
+      // TODO: to boolean prop
+      '        .load_external_fallback()',
       '        .build()',
       '        .unwrap();',
       '',

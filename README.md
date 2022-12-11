@@ -29,13 +29,15 @@ yarn add react-native-helios
 To instantiate a trustless [__JSON-RPC__](https://ethereum.org/en/developers/docs/apis/json-rpc/#:~:text=JSON%2DRPC%20is%20a%20stateless,many%20various%20message%20passing%20environments.), we merely need to call the `start()` method:
 
 ```typescript
-import { start } from 'react-native-helios';
+import { start, StartParams } from 'react-native-helios';
 
-const { shutdown } = await start({
+const params: StartParams = {
   untrusted_rpc_url:
     'https://eth-mainnet.g.alchemy.com/v2/<your-alchemy-key>', // source of initial proofs
   consensus_rpc_url: 'https://www.lightclientdata.org',
-});
+};
+
+const { shutdown } = await start(params);
 
 console.log("Ready!");
 
@@ -49,12 +51,9 @@ This will establish a JSON-RPC on your device running at `http://127.0.0.1:8485`
 ```typescript
 import { Platform } from 'react-native';
 import { ethers } from 'ethers';
+import { getHeliosProvider } from 'react-native-helios';
 
-const provider = await ethers.providers.getDefaultProvider(
-  `http://${
-    Platform.OS === 'android' ? 'localhost' : '127.0.0.1'
-  }:8545`
-);
+const provider = getHeliosProvider(params);
 
 const [blockNumber, balance] = await Promise.all([
   provider.getBlockNumber(),

@@ -1,4 +1,5 @@
 import { NativeModules, Platform } from 'react-native';
+import * as Providers from '@ethersproject/providers';
 
 import { StartParams, StartResult, Network } from '../@types';
 
@@ -19,16 +20,21 @@ const Helios = NativeModules.Helios
       }
     );
 
-export async function start({
+const sanitizeParams = ({
   network: maybeNetwork,
   rpc_port: maybeRpcPort,
   ...extras
-}: StartParams): Promise<StartResult> {
+}: StartParams): StartParams => {
   const network =
     typeof maybeNetwork === 'string' ? maybeNetwork : Network.MAINNET;
   const rpc_port = typeof maybeRpcPort === 'number' ? maybeRpcPort : 8545;
+  return { ...extras, network, rpc_port };
+};
 
-  await Helios.start({ ...extras, rpc_port, network });
+export async function start(maybeParams: StartParams): Promise<StartResult> {
+  const { rpc_port, ...extras } = sanitizeParams(maybeParams);
+
+  await Helios.start({ ...extras, rpc_port });
 
   const shutdown = async () => {
     await Helios.shutdown({ rpc_port });
@@ -36,3 +42,13 @@ export async function start({
 
   return { shutdown };
 }
+
+export const getHeliosUri = (maybeParams: StartParams): string => {
+  const { rpc_port } = sanitizeParams(maybeParams);
+  return `http://${
+    Platform.OS === 'android' ? 'localhost' : '127.0.0.1'
+  }:${rpc_port}`;
+};
+
+export const getHeliosProvider = (params: StartParams): Providers.Provider =>
+  Providers.getDefaultProvider(getHeliosUri(params));

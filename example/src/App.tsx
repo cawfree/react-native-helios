@@ -1,8 +1,12 @@
 import * as React from 'react';
 
-import { Image, StyleSheet, View, Platform } from 'react-native';
-import { Network, start, StartParams } from 'react-native-helios';
-import { ethers } from 'ethers';
+import { Image, StyleSheet, View } from 'react-native';
+import {
+  Network,
+  start,
+  StartParams,
+  getHeliosProvider,
+} from 'react-native-helios';
 
 const ENVIRONMENTS: readonly StartParams[] = [
   {
@@ -32,15 +36,8 @@ export default function App() {
             )
           );
 
-          const urls = ENVIRONMENTS.map(
-            ({ rpc_port }) =>
-              `http://${
-                Platform.OS === 'android' ? 'localhost' : '127.0.0.1'
-              }:${rpc_port}`
-          );
-
           const providers = await Promise.all(
-            urls.map((url) => ethers.providers.getDefaultProvider(url))
+            ENVIRONMENTS.map(getHeliosProvider)
           );
 
           const blockNumbers = await Promise.all(

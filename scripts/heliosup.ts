@@ -180,7 +180,7 @@ class AppleHeliosFactory extends HeliosFactory {
     super();
   }
   protected getTargets(): readonly string[] {
-    return ['aarch64-apple-ios', 'aarch64-apple-ios-sim'];
+    return ['aarch64-apple-ios-sim', 'aarch64-apple-ios'];
   }
   protected getCargoDependencies(): readonly string[] {
     return ['cargo-lipo'];

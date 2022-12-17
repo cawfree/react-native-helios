@@ -6,7 +6,7 @@ import * as child_process from 'child_process';
 
 const rust_version = 'nightly';
 const name = 'helios';
-const helios_checksum = 'e132706f0b9866fa0b40b3edb698103699d67e64';
+const helios_checksum = 'aa838aeee199cc4d425e6dfc998fd97428e44779';
 const openssl_sys_checksum = 'b30313a9775ed861ce9456745952e3012e5602ea';
 const stdio = 'inherit';
 const build = path.resolve('build');
@@ -132,21 +132,14 @@ abstract class HeliosFactory {
     fs.writeFileSync(
       helios_toml,
       [
-        ...fs
-          .readFileSync(helios_toml, 'utf-8')
-          .split('\n')
-          .flatMap((str) => {
-            // HACK: Override to use a version of OpenSSL which is
-            //       compatible with the iOS Simulator.
-            if (str === '[patch.crates-io]')
-              return [str, `openssl-sys = { path = "${openssl_sys}" }`];
-
-            return [str];
-          }),
+        ...fs.readFileSync(helios_toml, 'utf-8').split('\n'),
         '',
         '[lib]',
         `name = "${name}"`,
         `crate-type = ["${this.getCrateType()}"]`,
+        '',
+        '[patch.crates-io]',
+        `openssl-sys = { path = "${openssl_sys}" }`,
       ].join('\n')
     );
 

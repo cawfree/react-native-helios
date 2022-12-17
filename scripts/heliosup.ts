@@ -5,9 +5,11 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 
 const rust_version = 'nightly';
+const patch_crates_io = '[patch.crates-io]';
+
 const name = 'helios';
-const helios_checksum = 'e132706f0b9866fa0b40b3edb698103699d67e64';
-const openssl_sys_checksum = 'b30313a9775ed861ce9456745952e3012e5602ea';
+const helios_checksum = 'aa838aeee199cc4d425e6dfc998fd97428e44779';
+const openssl_sys_checksum = 'd5037d4dcae4fcb5c301f9df907975033185a926';
 const stdio = 'inherit';
 const build = path.resolve('build');
 const ios = path.resolve('ios');
@@ -37,6 +39,23 @@ const getSelectedNetwork = () => [
   '      _ => panic!("Unknown network!"),',
   '    };',
 ];
+
+const injectPatch = (file: string, fileToPatch: string) => {
+  const c = fs.readFileSync(file, 'utf-8').split('\n');
+  const i = c.indexOf(patch_crates_io);
+
+  fs.writeFileSync(
+    file,
+    (i >= 0
+      ? [
+          ...c.filter((_, j) => j <= i),
+          fileToPatch,
+          ...c.filter((_, j) => j > i),
+        ]
+      : [...c, '', patch_crates_io, fileToPatch]
+    ).join('\n')
+  );
+};
 
 abstract class HeliosFactory {
   private static prepareBuildDir(): void {
@@ -132,23 +151,15 @@ abstract class HeliosFactory {
     fs.writeFileSync(
       helios_toml,
       [
-        ...fs
-          .readFileSync(helios_toml, 'utf-8')
-          .split('\n')
-          .flatMap((str) => {
-            // HACK: Override to use a version of OpenSSL which is
-            //       compatible with the iOS Simulator.
-            if (str === '[patch.crates-io]')
-              return [str, `openssl-sys = { path = "${openssl_sys}" }`];
-
-            return [str];
-          }),
+        ...fs.readFileSync(helios_toml, 'utf-8').split('\n'),
         '',
         '[lib]',
         `name = "${name}"`,
         `crate-type = ["${this.getCrateType()}"]`,
       ].join('\n')
     );
+
+    injectPatch(helios_toml, `openssl-sys = { path = "${openssl_sys}" }`);
 
     fs.writeFileSync(
       helios_toml,
@@ -180,7 +191,7 @@ class AppleHeliosFactory extends HeliosFactory {
     super();
   }
   protected getTargets(): readonly string[] {
-    return ['aarch64-apple-ios', 'aarch64-apple-ios-sim'];
+    return ['aarch64-apple-ios-sim', 'aarch64-apple-ios'];
   }
   protected getCargoDependencies(): readonly string[] {
     return ['cargo-lipo'];
@@ -430,7 +441,6 @@ class AndroidHeliosFactory extends HeliosFactory {
             '',
             str,
             'rifgen = "0.1.61"',
-            'android_logger = { version = "0.11.1", default-features = false }',
             'jni-sys = "0.3.0"',
             'log = "0.4.6"',
             'log-panics = "2.0"',
@@ -538,12 +548,6 @@ class AndroidHeliosFactory extends HeliosFactory {
       '  #[generate_interface(constructor)]',
       '  pub fn new() -> Helios {',
       '    #[cfg(target_os = "android")]',
-      '    android_logger::init_once(',
-      '      android_logger::Config::default()',
-      '        .with_min_level(log::Level::Debug)',
-      '        .with_tag("cawfree"),',
-      '    );',
-      '    info!("init log system - done");',
       '    Helios {',
       '      client: None,',
       '      runtime: Runtime::new().unwrap(),',

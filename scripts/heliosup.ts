@@ -9,7 +9,7 @@ const patch_crates_io = '[patch.crates-io]';
 
 const name = 'helios';
 const helios_checksum = 'aa838aeee199cc4d425e6dfc998fd97428e44779';
-const openssl_sys_checksum = 'b30313a9775ed861ce9456745952e3012e5602ea';
+const openssl_sys_checksum = 'd5037d4dcae4fcb5c301f9df907975033185a926';
 const stdio = 'inherit';
 const build = path.resolve('build');
 const ios = path.resolve('ios');
@@ -441,7 +441,6 @@ class AndroidHeliosFactory extends HeliosFactory {
             '',
             str,
             'rifgen = "0.1.61"',
-            'android_logger = { version = "0.11.1", default-features = false }',
             'jni-sys = "0.3.0"',
             'log = "0.4.6"',
             'log-panics = "2.0"',
@@ -549,12 +548,6 @@ class AndroidHeliosFactory extends HeliosFactory {
       '  #[generate_interface(constructor)]',
       '  pub fn new() -> Helios {',
       '    #[cfg(target_os = "android")]',
-      '    android_logger::init_once(',
-      '      android_logger::Config::default()',
-      '        .with_min_level(log::Level::Debug)',
-      '        .with_tag("cawfree"),',
-      '    );',
-      '    info!("init log system - done");',
       '    Helios {',
       '      client: None,',
       '      runtime: Runtime::new().unwrap(),',

@@ -5,6 +5,8 @@ import * as path from 'path';
 import * as child_process from 'child_process';
 
 const rust_version = 'nightly';
+const patch_crates_io = '[patch.crates-io]';
+
 const name = 'helios';
 const helios_checksum = 'aa838aeee199cc4d425e6dfc998fd97428e44779';
 const openssl_sys_checksum = 'b30313a9775ed861ce9456745952e3012e5602ea';
@@ -37,6 +39,23 @@ const getSelectedNetwork = () => [
   '      _ => panic!("Unknown network!"),',
   '    };',
 ];
+
+const injectPatch = (file: string, fileToPatch: string) => {
+  const c = fs.readFileSync(file, 'utf-8').split('\n');
+  const i = c.indexOf(patch_crates_io);
+
+  fs.writeFileSync(
+    file,
+    (i >= 0
+      ? [
+          ...c.filter((_, j) => j <= i),
+          fileToPatch,
+          ...c.filter((_, j) => j > i),
+        ]
+      : [...c, '', patch_crates_io, fileToPatch]
+    ).join('\n')
+  );
+};
 
 abstract class HeliosFactory {
   private static prepareBuildDir(): void {
@@ -137,11 +156,10 @@ abstract class HeliosFactory {
         '[lib]',
         `name = "${name}"`,
         `crate-type = ["${this.getCrateType()}"]`,
-        '',
-        '[patch.crates-io]',
-        `openssl-sys = { path = "${openssl_sys}" }`,
       ].join('\n')
     );
+
+    injectPatch(helios_toml, `openssl-sys = { path = "${openssl_sys}" }`);
 
     fs.writeFileSync(
       helios_toml,

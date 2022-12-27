@@ -18,7 +18,7 @@ class Helios: NSObject {
           let rpc_port = params["rpc_port"];
           let network = params["network"];
 
-          let key = String(format: "%f", rpc_port as! Double);
+          let key = String(format: "%.0f", rpc_port as! Double);
 
           let task = Task {
               await rustApp.helios_start(
@@ -40,7 +40,7 @@ class Helios: NSObject {
   @objc func shutdown(_ params:NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) -> Void {
       if #available(iOS 13.0.0, *) {
           let rpc_port = params["rpc_port"];
-          let key = String(format: "%f", rpc_port as! Double);
+          let key = String(format: "%.0f", rpc_port as! Double);
 
           let rustApp = RUST_APPS[key];
 

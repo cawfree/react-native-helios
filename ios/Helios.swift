@@ -3,57 +3,100 @@ import Foundation
 @objc(Helios)
 class Helios: NSObject {
 
-  var RUST_APPS = [String: RustApp]();
-
   public static func requiresMainQueueSetup() -> Bool {
     return true;
   }
-
-  @objc func start(_ params:NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) -> Void {
-      if #available(iOS 13.0.0, *) {
-          let rustApp = RustApp();
-
-          let untrusted_rpc_url = params["untrusted_rpc_url"];
-          let consensus_rpc_url = params["consensus_rpc_url"];
-          let rpc_port = params["rpc_port"];
-          let network = params["network"];
-
-          let key = String(format: "%.0f", rpc_port as! Double);
-
-          let task = Task {
-              await rustApp.helios_start(
-                (untrusted_rpc_url as! String),
-                (consensus_rpc_url as! String),
-                (rpc_port as! Double),
-                (network as! String)
-              );
-
-              RUST_APPS[key] = rustApp;
-              resolve("");
+  
+  var INSTANCES = [String: RustApp]();
+  
+  private func getKey(pPort: Double) -> String {
+    return String(format: "%.0f", pPort);
+  }
+    
+  @available(iOS 13.0.0, *)
+  private func shouldStopHelios(pPort: Double) async throws {
+    let key = getKey(pPort: pPort);
+    let rustApp = INSTANCES[key];
+      
+    if (rustApp == nil) {
+      return;
+    }
+    
+    await rustApp!.helios_shutdown();
+    
+    INSTANCES.removeValue(forKey: key);
+  }
+    
+  @available(iOS 13.0.0, *)
+  private func shouldStartHelios(
+    pPort: Double,
+    pUntrustedRpcUrl: String,
+    pConsensusRpcUrl: String,
+    pNetwork: String
+  ) async throws {
+    try await shouldStopHelios(pPort: pPort);
+      
+    let key = getKey(pPort: pPort);
+      
+    let rustApp = RustApp();
+      
+    await rustApp.helios_start(
+      pUntrustedRpcUrl,
+      pConsensusRpcUrl,
+      pPort,
+      pNetwork
+    );
+      
+    INSTANCES[key] = rustApp;
+  }
+    
+  func resolveOrReject(
+    resolve: @escaping RCTPromiseResolveBlock,
+    reject: @escaping RCTPromiseRejectBlock,
+    runnable: @escaping () async  throws -> Any?
+  ) {
+    if #available(iOS 13.0, *) {
+      Task {
+        do {
+          try await runnable();
+          DispatchQueue.main.async { resolve(0); }
+        } catch let error as NSError {
+          DispatchQueue.main.async {
+            reject("\(error.code)", error.userInfo.description, error);
           }
-      } else {
-          // Fallback on earlier versions
-          reject("", "", nil);
-      };
+        }
+      }
+    } else {
+      reject("-1", "iOS version must be greater than 13.0.0.", nil);
+    }
   }
 
-  @objc func shutdown(_ params:NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) -> Void {
-      if #available(iOS 13.0.0, *) {
-          let rpc_port = params["rpc_port"];
-          let key = String(format: "%.0f", rpc_port as! Double);
+  @available(iOS 13.0.0, *)
+  @objc func start(_ params:NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
+    resolveOrReject(resolve: resolve, reject: reject) {
+      let untrusted_rpc_url = params["untrusted_rpc_url"];
+      let consensus_rpc_url = params["consensus_rpc_url"];
+      let rpc_port = params["rpc_port"];
+      let network = params["network"];
+      
+      try await self.shouldStartHelios(
+        pPort: (rpc_port as! Double),
+        pUntrustedRpcUrl: (untrusted_rpc_url as! String),
+        pConsensusRpcUrl: (consensus_rpc_url as! String),
+        pNetwork: (network as! String)
+      );
+      
+      return;
+    }
+  }
 
-          let rustApp = RUST_APPS[key];
-
-          let task = Task {
-            await rustApp!.helios_shutdown();
-
-            RUST_APPS.removeValue(forKey: key);
-            resolve("");
-          }
-      } else {
-          // Fallback on earlier versions
-          reject("", "", nil);
-      };
+  @available(iOS 13.0.0, *)
+  @objc func shutdown(_ params:NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
+    resolveOrReject(resolve: resolve, reject: reject) {
+      let rpc_port = params["rpc_port"];
+      try await self.shouldStopHelios(pPort: params["rpc_port"] as! Double);
+      return;
+    }
   }
 
 }

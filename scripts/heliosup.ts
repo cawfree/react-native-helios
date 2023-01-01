@@ -8,7 +8,7 @@ const rust_version = 'nightly';
 const patch_crates_io = '[patch.crates-io]';
 
 const name = 'helios';
-const helios_checksum = 'bfe44809d87069aa9710bba7e29ef2572f56fa5b';
+const helios_checksum = 'aa838aeee199cc4d425e6dfc998fd97428e44779';
 const openssl_sys_checksum = 'd5037d4dcae4fcb5c301f9df907975033185a926';
 const stdio = 'inherit';
 const build = path.resolve('build');

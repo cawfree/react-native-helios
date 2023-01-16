@@ -137,13 +137,14 @@ abstract class HeliosFactory {
       cwd: build,
     });
 
-    child_process.execSync(
-      `cargo install ${this.getCargoDependencies().join(' ')}`,
-      {
-        cwd: build,
-        stdio,
-      }
-    );
+    this.getCargoDependencies().length &&
+      child_process.execSync(
+        `cargo install ${this.getCargoDependencies().join(' ')}`,
+        {
+          cwd: build,
+          stdio,
+        }
+      );
 
     HeliosFactory.checkoutHelios();
     HeliosFactory.checkoutOpenSsl();
@@ -191,10 +192,10 @@ class AppleHeliosFactory extends HeliosFactory {
     super();
   }
   protected getTargets(): readonly string[] {
-    return ['aarch64-apple-ios-sim', 'aarch64-apple-ios'];
+    return ['aarch64-apple-ios', 'aarch64-apple-ios-sim'];
   }
   protected getCargoDependencies(): readonly string[] {
-    return ['cargo-lipo'];
+    return [];
   }
   protected getLibrarySource(): readonly string[] {
     return [
@@ -316,9 +317,10 @@ class AppleHeliosFactory extends HeliosFactory {
       'cd $THISDIR',
       'export SWIFT_BRIDGE_OUT_DIR="$(pwd)/generated"',
       '',
-
+      'cargo fix --lib -p helios --allow-dirty',
+      '',
       // https://gist.github.com/surpher/bbf88e191e9d1f01ab2e2bbb85f9b528#universal-ios-arm64-mobile-device--x86_64-simulator
-      'cargo lipo --release',
+      'cargo build -Z build-std --target aarch64-apple-ios --release',
       // https://gist.github.com/surpher/bbf88e191e9d1f01ab2e2bbb85f9b528#ios-simulator-arm64
       'cargo build -Z build-std --target aarch64-apple-ios-sim --release',
 
@@ -421,6 +423,8 @@ class AndroidHeliosFactory extends HeliosFactory {
   protected getBuildScriptSource(): readonly string[] {
     return [
       '#!/usr/bin/env bash',
+      '',
+      'cargo fix --lib -p helios --allow-dirty',
       '',
       this.getTargets()
         .map((target) => `cargo ndk --target ${target} -- build --release`)

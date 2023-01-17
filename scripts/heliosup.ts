@@ -8,7 +8,7 @@ const rust_version = 'nightly';
 const patch_crates_io = '[patch.crates-io]';
 
 const name = 'helios';
-const helios_checksum = 'bfe44809d87069aa9710bba7e29ef2572f56fa5b';
+const helios_checksum = 'c7a1bad8e56961316cbd34db3076a8c4735c5756';
 const openssl_sys_checksum = 'd5037d4dcae4fcb5c301f9df907975033185a926';
 const stdio = 'inherit';
 const build = path.resolve('build');
@@ -137,13 +137,14 @@ abstract class HeliosFactory {
       cwd: build,
     });
 
-    child_process.execSync(
-      `cargo install ${this.getCargoDependencies().join(' ')}`,
-      {
-        cwd: build,
-        stdio,
-      }
-    );
+    this.getCargoDependencies().length &&
+      child_process.execSync(
+        `cargo install ${this.getCargoDependencies().join(' ')}`,
+        {
+          cwd: build,
+          stdio,
+        }
+      );
 
     HeliosFactory.checkoutHelios();
     HeliosFactory.checkoutOpenSsl();
@@ -191,10 +192,10 @@ class AppleHeliosFactory extends HeliosFactory {
     super();
   }
   protected getTargets(): readonly string[] {
-    return ['aarch64-apple-ios-sim', 'aarch64-apple-ios'];
+    return ['aarch64-apple-ios', 'aarch64-apple-ios-sim'];
   }
   protected getCargoDependencies(): readonly string[] {
-    return ['cargo-lipo'];
+    return [];
   }
   protected getLibrarySource(): readonly string[] {
     return [
@@ -273,18 +274,32 @@ class AppleHeliosFactory extends HeliosFactory {
     return 'staticlib';
   }
   protected customizeCargo(current: readonly string[]): readonly string[] {
-    return current.flatMap((str) => {
-      if (str === '[dependencies]') {
-        return [
-          '[build-dependencies]',
-          'swift-bridge-build = "0.1"',
-          '',
-          str,
-          'swift-bridge = {version = "0.1", features = ["async"]}',
-        ];
-      } else if (str === '[package]') return [str, 'build = "build.rs"'];
-      return [str];
-    });
+    return [
+      ...current.flatMap((str) => {
+        if (str === '[dependencies]') {
+          return [
+            '[build-dependencies]',
+            'swift-bridge-build = "0.1"',
+            '',
+            str,
+            'swift-bridge = {version = "0.1", features = ["async"]}',
+          ];
+        }
+
+        if (str === '[package]') return [str, 'build = "build.rs"'];
+
+        //if (str === 'strip = true') return [];
+        //if (str === 'opt-level = "z"') return [];
+        //if (str === 'lto = true') return [];
+        //if (str === 'codegen-units = 1') return [];
+
+        // This PR regressed builds on iOS: https://github.com/a16z/helios/pull/160
+        // It would cause an error, "duplicate lang item in crate `core`: `sized`".
+        if (str === 'panic = "abort"') return [];
+
+        return [str];
+      }),
+    ];
   }
 
   protected prepareBuildWorkspace() {
@@ -316,9 +331,10 @@ class AppleHeliosFactory extends HeliosFactory {
       'cd $THISDIR',
       'export SWIFT_BRIDGE_OUT_DIR="$(pwd)/generated"',
       '',
-
+      //'cargo fix --lib -p helios --allow-dirty',
+      '',
       // https://gist.github.com/surpher/bbf88e191e9d1f01ab2e2bbb85f9b528#universal-ios-arm64-mobile-device--x86_64-simulator
-      'cargo lipo --release',
+      'cargo build -Z build-std --target aarch64-apple-ios --release ',
       // https://gist.github.com/surpher/bbf88e191e9d1f01ab2e2bbb85f9b528#ios-simulator-arm64
       'cargo build -Z build-std --target aarch64-apple-ios-sim --release',
 
@@ -421,6 +437,8 @@ class AndroidHeliosFactory extends HeliosFactory {
   protected getBuildScriptSource(): readonly string[] {
     return [
       '#!/usr/bin/env bash',
+      '',
+      //'cargo fix --lib -p helios --allow-dirty',
       '',
       this.getTargets()
         .map((target) => `cargo ndk --target ${target} -- build --release`)

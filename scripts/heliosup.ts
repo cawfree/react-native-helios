@@ -8,7 +8,7 @@ const rust_version = 'nightly';
 const patch_crates_io = '[patch.crates-io]';
 
 const name = 'helios';
-const helios_checksum = 'c7a1bad8e56961316cbd34db3076a8c4735c5756';
+const helios_checksum = 'bfe44809d87069aa9710bba7e29ef2572f56fa5b';
 const openssl_sys_checksum = 'd5037d4dcae4fcb5c301f9df907975033185a926';
 const stdio = 'inherit';
 const build = path.resolve('build');
@@ -274,18 +274,20 @@ class AppleHeliosFactory extends HeliosFactory {
     return 'staticlib';
   }
   protected customizeCargo(current: readonly string[]): readonly string[] {
-    return current.flatMap((str) => {
-      if (str === '[dependencies]') {
-        return [
-          '[build-dependencies]',
-          'swift-bridge-build = "0.1"',
-          '',
-          str,
-          'swift-bridge = {version = "0.1", features = ["async"]}',
-        ];
-      } else if (str === '[package]') return [str, 'build = "build.rs"'];
-      return [str];
-    });
+    return [
+      ...current.flatMap((str) => {
+        if (str === '[dependencies]') {
+          return [
+            '[build-dependencies]',
+            'swift-bridge-build = "0.1"',
+            '',
+            str,
+            'swift-bridge = {version = "0.1", features = ["async"]}',
+          ];
+        } else if (str === '[package]') return [str, 'build = "build.rs"'];
+        return [str];
+      }),
+    ];
   }
 
   protected prepareBuildWorkspace() {
@@ -317,10 +319,10 @@ class AppleHeliosFactory extends HeliosFactory {
       'cd $THISDIR',
       'export SWIFT_BRIDGE_OUT_DIR="$(pwd)/generated"',
       '',
-      'cargo fix --lib -p helios --allow-dirty',
+      //'cargo fix --lib -p helios --allow-dirty',
       '',
       // https://gist.github.com/surpher/bbf88e191e9d1f01ab2e2bbb85f9b528#universal-ios-arm64-mobile-device--x86_64-simulator
-      'cargo build -Z build-std --target aarch64-apple-ios --release',
+      'cargo build -Z build-std --target aarch64-apple-ios --release ',
       // https://gist.github.com/surpher/bbf88e191e9d1f01ab2e2bbb85f9b528#ios-simulator-arm64
       'cargo build -Z build-std --target aarch64-apple-ios-sim --release',
 
@@ -424,7 +426,7 @@ class AndroidHeliosFactory extends HeliosFactory {
     return [
       '#!/usr/bin/env bash',
       '',
-      'cargo fix --lib -p helios --allow-dirty',
+      //'cargo fix --lib -p helios --allow-dirty',
       '',
       this.getTargets()
         .map((target) => `cargo ndk --target ${target} -- build --release`)

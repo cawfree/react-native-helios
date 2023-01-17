@@ -288,11 +288,14 @@ class AppleHeliosFactory extends HeliosFactory {
 
         if (str === '[package]') return [str, 'build = "build.rs"'];
 
-        if (str === 'strip = true') return [''];
-        if (str === 'opt-level = "z"') return [''];
-        if (str === 'lto = true') return [''];
-        if (str === 'codegen-units = 1') return [''];
-        if (str === 'panic = "abort"') return [''];
+        //if (str === 'strip = true') return [];
+        //if (str === 'opt-level = "z"') return [];
+        //if (str === 'lto = true') return [];
+        //if (str === 'codegen-units = 1') return [];
+
+        // This PR regressed builds on iOS: https://github.com/a16z/helios/pull/160
+        // It would cause an error, "duplicate lang item in crate `core`: `sized`".
+        if (str === 'panic = "abort"') return [];
 
         return [str];
       }),

@@ -8,7 +8,7 @@ const rust_version = 'nightly';
 const patch_crates_io = '[patch.crates-io]';
 
 const name = 'helios';
-const helios_checksum = 'f8275f054ecc9e0d3e02c82ca337e6ce0978285d';
+const helios_checksum = 'c7a1bad8e56961316cbd34db3076a8c4735c5756';
 const openssl_sys_checksum = 'd5037d4dcae4fcb5c301f9df907975033185a926';
 const stdio = 'inherit';
 const build = path.resolve('build');
@@ -284,7 +284,16 @@ class AppleHeliosFactory extends HeliosFactory {
             str,
             'swift-bridge = {version = "0.1", features = ["async"]}',
           ];
-        } else if (str === '[package]') return [str, 'build = "build.rs"'];
+        }
+
+        if (str === '[package]') return [str, 'build = "build.rs"'];
+
+        if (str === 'strip = true') return [''];
+        if (str === 'opt-level = "z"') return [''];
+        if (str === 'lto = true') return [''];
+        if (str === 'codegen-units = 1') return [''];
+        if (str === 'panic = "abort"') return [''];
+
         return [str];
       }),
     ];

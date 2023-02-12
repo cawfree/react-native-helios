@@ -4,12 +4,17 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as child_process from 'child_process';
 
-const rust_version = 'nightly';
+const nightly_version = '2022-12-17';
+const rust_version = `nightly-${nightly_version}`;
 const patch_crates_io = '[patch.crates-io]';
 
 const name = 'helios';
-const helios_checksum = 'c7a1bad8e56961316cbd34db3076a8c4735c5756';
-const openssl_sys_checksum = 'd5037d4dcae4fcb5c301f9df907975033185a926';
+const helios_checksum = 'ef5a6a216f0662d1a9486c8a5260216c61bac80b';
+
+// IMPORTANT! Must point to a version which is identical to the version of openssl-src referenced by helios' Cargo.lock.
+// Else, the patch will be ignored.
+const openssl_sys_checksum = 'dc976d756f9d3273c3c6f960fadb88e44b468050';
+
 const stdio = 'inherit';
 const build = path.resolve('build');
 const ios = path.resolve('ios');
@@ -126,7 +131,7 @@ abstract class HeliosFactory {
     });
 
     child_process.execSync(
-      `rustup component add rust-src --toolchain nightly-aarch64-apple-darwin`,
+      `rustup component add rust-src --toolchain nightly-${nightly_version}-aarch64-apple-darwin`,
       {
         cwd: build,
         stdio,
@@ -446,6 +451,7 @@ class AndroidHeliosFactory extends HeliosFactory {
     return [
       '#!/usr/bin/env bash',
       '',
+      //'rustup target add aarch64-linux-android',
       //'cargo fix --lib -p helios --allow-dirty',
       '',
       this.getTargets()

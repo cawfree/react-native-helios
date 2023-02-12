@@ -125,6 +125,14 @@ abstract class HeliosFactory {
       stdio,
     });
 
+    child_process.execSync(
+      `rustup component add rust-src --toolchain nightly-aarch64-apple-darwin`,
+      {
+        cwd: build,
+        stdio,
+      }
+    );
+
     child_process.execSync(`rustup default ${rust_version}`, {
       cwd: build,
       stdio,

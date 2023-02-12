@@ -451,7 +451,8 @@ class AndroidHeliosFactory extends HeliosFactory {
     return [
       '#!/usr/bin/env bash',
       '',
-      //'rustup target add aarch64-linux-android',
+      'rustup target add aarch64-linux-android',
+      'rustup target install x86_64-linux-android',
       //'cargo fix --lib -p helios --allow-dirty',
       '',
       this.getTargets()
@@ -663,8 +664,8 @@ void (async () => {
     const androidIsDisabled = ANDROID_DISABLED === String(true);
     const appleIsDisabled = APPLE_DISABLED == String(true);
 
-    !appleIsDisabled && new AppleHeliosFactory().compile();
     !androidIsDisabled && new AndroidHeliosFactory().compile();
+    !appleIsDisabled && new AppleHeliosFactory().compile();
 
     onFinish();
   } catch (e) {

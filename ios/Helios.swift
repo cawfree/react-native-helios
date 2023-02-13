@@ -40,11 +40,14 @@ class Helios: NSObject {
       
     let rustApp = RustApp();
       
+    let dataDir = FileManager.default.temporaryDirectory.appendingPathComponent("react-native-helios", isDirectory: true).absoluteString;
+    
     await rustApp.helios_start(
       pUntrustedRpcUrl,
       pConsensusRpcUrl,
       pPort,
-      pNetwork
+      pNetwork,
+      dataDir
     );
       
     INSTANCES[key] = rustApp;

@@ -12,6 +12,7 @@ import com.facebook.react.module.annotations.ReactModule;
 
 import com.facebook.react.bridge.ReadableMap;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -56,7 +57,8 @@ public class HeliosModule extends ReactContextBaseJavaModule {
     final String pUntrustedRpcUrl,
     final String pConsensusRpcUrl,
     final Double pPort,
-    final String pNetwork
+    final String pNetwork,
+    final String pDataDir
   ) {
     final String key = getKey(pPort);
 
@@ -66,7 +68,8 @@ public class HeliosModule extends ReactContextBaseJavaModule {
       pUntrustedRpcUrl,
       pConsensusRpcUrl,
       pPort,
-      pNetwork
+      pNetwork,
+      pDataDir
     );
 
     INSTANCES.put(key, helios);
@@ -100,6 +103,12 @@ public class HeliosModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public final void start(final ReadableMap pReadableMap, final Promise pPromise) {
+    final File cacheDir = getCurrentActivity().getCacheDir();
+
+    if (!cacheDir.exists()) cacheDir.mkdirs();
+
+    final String dataDir = cacheDir.getAbsolutePath();
+
     resolveOrReject(
       getCurrentActivity(),
       pPromise,
@@ -108,7 +117,8 @@ public class HeliosModule extends ReactContextBaseJavaModule {
           pReadableMap.getString("untrusted_rpc_url"),
           pReadableMap.getString("consensus_rpc_url"),
           pReadableMap.getDouble("rpc_port"),
-          pReadableMap.getString("network")
+          pReadableMap.getString("network"),
+          dataDir
         );
       }
     );

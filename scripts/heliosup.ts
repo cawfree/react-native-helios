@@ -4,12 +4,17 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as child_process from 'child_process';
 
-const rust_version = 'nightly';
+const nightly_version = '2022-12-17';
+const rust_version = `nightly-${nightly_version}`;
 const patch_crates_io = '[patch.crates-io]';
 
 const name = 'helios';
-const helios_checksum = 'c7a1bad8e56961316cbd34db3076a8c4735c5756';
-const openssl_sys_checksum = 'd5037d4dcae4fcb5c301f9df907975033185a926';
+const helios_checksum = 'ef5a6a216f0662d1a9486c8a5260216c61bac80b';
+
+// IMPORTANT! Must point to a version which is identical to the version of openssl-src referenced by helios' Cargo.lock.
+// Else, the patch will be ignored.
+const openssl_sys_checksum = 'dc976d756f9d3273c3c6f960fadb88e44b468050';
+
 const stdio = 'inherit';
 const build = path.resolve('build');
 const ios = path.resolve('ios');
@@ -125,6 +130,14 @@ abstract class HeliosFactory {
       stdio,
     });
 
+    child_process.execSync(
+      `rustup component add rust-src --toolchain nightly-${nightly_version}-aarch64-apple-darwin`,
+      {
+        cwd: build,
+        stdio,
+      }
+    );
+
     child_process.execSync(`rustup default ${rust_version}`, {
       cwd: build,
       stdio,
@@ -205,6 +218,8 @@ class AppleHeliosFactory extends HeliosFactory {
       'use ::client::{database::FileDB, Client, ClientBuilder};',
       'use ::config::{CliConfig, Config, networks};',
       '',
+      'use std::path::PathBuf;',
+      '',
       '#[swift_bridge::bridge]',
       'mod ffi {',
       '',
@@ -220,6 +235,7 @@ class AppleHeliosFactory extends HeliosFactory {
       '      consensus_rpc_url: String,',
       '      rpc_port: f64,',
       '      network: String,',
+      '      data_dir: String,',
       '    );',
       '    async fn helios_shutdown(&mut self);',
       '  }',
@@ -239,12 +255,14 @@ class AppleHeliosFactory extends HeliosFactory {
       '    consensus_rpc_url: String,',
       '    rpc_port: f64,',
       '    network: String,',
+      '    data_dir: String,',
       '  ) {',
       ...getSelectedNetwork(),
-      '    let mut client = ClientBuilder::new()',
+      '    let mut client: Client<FileDB> = ClientBuilder::new()',
       '      .network(selectedNetwork)',
       '      .execution_rpc(&untrusted_rpc_url)',
       '      .consensus_rpc(&consensus_rpc_url)',
+      '      .data_dir(PathBuf::from(&data_dir))',
       '      .rpc_port((rpc_port as i16).try_into().unwrap())',
       // TODO: to boolean prop
       '      .load_external_fallback()',
@@ -438,6 +456,8 @@ class AndroidHeliosFactory extends HeliosFactory {
     return [
       '#!/usr/bin/env bash',
       '',
+      'rustup target add aarch64-linux-android',
+      'rustup target install x86_64-linux-android',
       //'cargo fix --lib -p helios --allow-dirty',
       '',
       this.getTargets()
@@ -556,6 +576,7 @@ class AndroidHeliosFactory extends HeliosFactory {
       '',
       'use tokio::runtime::Runtime;',
       'use std::{thread, time::Duration};',
+      'use std::path::PathBuf;',
       '',
       'pub struct Helios {',
       '  client: Option<Client<FileDB>>,',
@@ -579,13 +600,15 @@ class AndroidHeliosFactory extends HeliosFactory {
       '    consensus_rpc_url: String,',
       '    rpc_port: f64,',
       '    network: String,',
+      '    data_dir: String,',
       '  ) {',
       ...getSelectedNetwork(),
       '    self.runtime.block_on(async {',
-      '      let mut client = ClientBuilder::new()',
+      '      let mut client: Client<FileDB> = ClientBuilder::new()',
       '        .network(selectedNetwork)',
       '        .consensus_rpc(&consensus_rpc_url)',
       '        .execution_rpc(&untrusted_rpc_url)',
+      '        .data_dir(PathBuf::from(&data_dir))',
       '        .rpc_port((rpc_port as i16).try_into().unwrap())',
       // TODO: to boolean prop
       '        .load_external_fallback()',
@@ -649,8 +672,8 @@ void (async () => {
     const androidIsDisabled = ANDROID_DISABLED === String(true);
     const appleIsDisabled = APPLE_DISABLED == String(true);
 
-    !appleIsDisabled && new AppleHeliosFactory().compile();
     !androidIsDisabled && new AndroidHeliosFactory().compile();
+    !appleIsDisabled && new AppleHeliosFactory().compile();
 
     onFinish();
   } catch (e) {

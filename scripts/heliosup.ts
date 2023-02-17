@@ -9,7 +9,7 @@ const rust_version = `nightly-${nightly_version}`;
 const patch_crates_io = '[patch.crates-io]';
 
 const name = 'helios';
-const helios_checksum = 'ef5a6a216f0662d1a9486c8a5260216c61bac80b';
+const helios_checksum = '8da632f8f2902a0095bc1fcd6e1a1008950c7002';
 
 // IMPORTANT! Must point to a version which is identical to the version of openssl-src referenced by helios' Cargo.lock.
 // Else, the patch will be ignored.

@@ -167,10 +167,10 @@ abstract class HeliosFactory {
     fs.writeFileSync(
       helios_toml,
       [
-        ...fs.readFileSync(helios_toml, 'utf-8')
+        ...fs
+          .readFileSync(helios_toml, 'utf-8')
           .split('\n')
           .filter((line: string) => {
-
             // This line is incompatible; results in missing executables.
             // https://github.com/a16z/helios/commit/2e6b948c8f8ff4d8283c774e797ff0a4dbb55c41
             if (line === 'default-members = ["cli"]') return false;
@@ -250,6 +250,7 @@ class AppleHeliosFactory extends HeliosFactory {
       '      checkpoint: String,',
       '    );',
       '    async fn helios_shutdown(&mut self);',
+      '    async fn helios_fallback_checkpoint(&mut self, network: String) -> String;',
       '  }',
       '}',
       '',
@@ -277,9 +278,7 @@ class AppleHeliosFactory extends HeliosFactory {
       '      .consensus_rpc(&consensus_rpc_url)',
       '      .data_dir(PathBuf::from(&data_dir))',
       '      .rpc_port((rpc_port as i16).try_into().unwrap())',
-      //'      .checkpoint(&checkpoint)',
-      //'      .checkpoint(&checkpoints::CheckpointFallback::new().build().await.unwrap().fetch_latest_checkpoint(&selected_network).await.unwrap().to_string())',
-      '      .checkpoint(&format!("{:#x}", checkpoints::CheckpointFallback::new().build().await.unwrap().fetch_latest_checkpoint(&selected_network).await.unwrap()))',
+      '      .checkpoint(&checkpoint)',
       // TODO: to boolean prop
       //'      .load_external_fallback()',
       '      .build()',
@@ -295,6 +294,10 @@ class AppleHeliosFactory extends HeliosFactory {
       '    }',
       '    self.client = None;',
       '    return;',
+      '  }',
+      '  async fn helios_fallback_checkpoint(&mut self, network: String) -> String {',
+      ...getSelectedNetwork(),
+      '    return format!("{:#x}", checkpoints::CheckpointFallback::new().build().await.unwrap().fetch_latest_checkpoint(&selected_network).await.unwrap())',
       '  }',
       '',
       '}',
@@ -626,9 +629,7 @@ class AndroidHeliosFactory extends HeliosFactory {
       '        .consensus_rpc(&consensus_rpc_url)',
       '        .execution_rpc(&untrusted_rpc_url)',
       '        .data_dir(PathBuf::from(&data_dir))',
-      //'      .checkpoint(&checkpoint)',
-      //'      .checkpoint(&checkpoints::CheckpointFallback::new().build().await.unwrap().fetch_latest_checkpoint(&selected_network).await.unwrap().to_string())',
-      '        .checkpoint(&format!("{:#x}", checkpoints::CheckpointFallback::new().build().await.unwrap().fetch_latest_checkpoint(&selected_network).await.unwrap()))',
+      '      .checkpoint(&checkpoint)',
       '        .rpc_port((rpc_port as i16).try_into().unwrap())',
       // TODO: to boolean prop
       //'        .load_external_fallback()',
@@ -649,6 +650,14 @@ class AndroidHeliosFactory extends HeliosFactory {
       '      return;',
       '    })',
       '  }',
+      '  #[generate_interface]',
+      '  fn helios_fallback_checkpoint(&mut self, network: String) -> String {',
+      '    return self.runtime.block_on(async {',
+      ...getSelectedNetwork(),
+      '      return format!("{:#x}", checkpoints::CheckpointFallback::new().build().await.unwrap().fetch_latest_checkpoint(&selected_network).await.unwrap())',
+      '    })',
+      '  }',
+
       '}',
     ];
   }

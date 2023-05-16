@@ -104,5 +104,20 @@ class Helios: NSObject {
       return;
     }
   }
+    
+  @available(iOS 13.0.0, *)
+  @objc func fallbackCheckpoint(_ params:NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
+    Task {
+      do {
+        let rustApp = RustApp();
+        let fallbackCheckpoint = await rustApp.helios_fallback_checkpoint(params["network"] as! String).toString();
+        DispatchQueue.main.async { resolve(fallbackCheckpoint); }
+      } catch let error as NSError {
+        DispatchQueue.main.async {
+          reject("\(error.code)", error.userInfo.description, error);
+        }
+      }
+    }
+  }
 
 }

@@ -2,10 +2,10 @@ import * as React from 'react';
 
 import { Image, StyleSheet, View } from 'react-native';
 import {
+  getHeliosProvider,
   Network,
   start,
   StartParams,
-  getHeliosProvider,
 } from 'react-native-helios';
 
 const ethereumMainnet: StartParams = {

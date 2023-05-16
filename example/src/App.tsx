@@ -2,17 +2,17 @@ import * as React from 'react';
 
 import { Image, StyleSheet, View } from 'react-native';
 import {
+  getHeliosProvider,
   Network,
   start,
   StartParams,
-  getHeliosProvider,
 } from 'react-native-helios';
 
 const ethereumMainnet: StartParams = {
   network: Network.MAINNET,
   consensus_rpc_url: 'https://www.lightclientdata.org',
   untrusted_rpc_url:
-    'https://eth-mainnet.g.alchemy.com/v2/qRvcG73gu2RDH3FEhmjkbOV9kgEKG98F',
+    'https://eth-mainnet.g.alchemy.com/v2/Egs_eiq_v9XNiov1uyRJUWgKn0yb-qWU',
   rpc_port: 8545,
 };
 
@@ -20,7 +20,7 @@ const ethereumGoerli: StartParams = {
   network: Network.GOERLI,
   consensus_rpc_url: 'http://testing.prater.beacon-api.nimbus.team',
   untrusted_rpc_url:
-    'https://eth-goerli.g.alchemy.com/v2/YmK_MvHFc1fIQPnhWP1yUgiDl026mgh4',
+    'https://eth-goerli.g.alchemy.com/v2/x-e_64tklpNvyirgtckXvIGEBHp7XbXB',
   rpc_port: 8546,
 };
 

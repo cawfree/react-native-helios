@@ -58,7 +58,8 @@ public class HeliosModule extends ReactContextBaseJavaModule {
     final String pConsensusRpcUrl,
     final Double pPort,
     final String pNetwork,
-    final String pDataDir
+    final String pDataDir,
+    final String pCheckpoint
   ) {
     final String key = getKey(pPort);
 
@@ -69,7 +70,8 @@ public class HeliosModule extends ReactContextBaseJavaModule {
       pConsensusRpcUrl,
       pPort,
       pNetwork,
-      pDataDir
+      pDataDir,
+      pCheckpoint
     );
 
     INSTANCES.put(key, helios);
@@ -118,7 +120,8 @@ public class HeliosModule extends ReactContextBaseJavaModule {
           pReadableMap.getString("consensus_rpc_url"),
           pReadableMap.getDouble("rpc_port"),
           pReadableMap.getString("network"),
-          dataDir
+          dataDir,
+          pReadableMap.getString("checkpoint")
         );
       }
     );
@@ -133,6 +136,21 @@ public class HeliosModule extends ReactContextBaseJavaModule {
         shouldStopHelios(pReadableMap.getDouble("rpc_port"));
       }
     );
+  }
+
+  @ReactMethod
+  public final void fallbackCheckpoint(final ReadableMap pReadableMap, final Promise pPromise) {
+    final Activity lActivity = getCurrentActivity();
+
+    EXECUTOR.execute(() -> {
+      try {
+        final String fallbackCheckpoint = new Helios().heliosFallbackCheckpoint(pReadableMap.getString("network"));
+        lActivity.runOnUiThread(() -> pPromise.resolve(fallbackCheckpoint));
+      } catch (Exception e) {
+        e.printStackTrace();
+        lActivity.runOnUiThread(() -> pPromise.reject(e));
+      }
+    });
   }
 
 }

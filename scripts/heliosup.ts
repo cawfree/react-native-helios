@@ -9,7 +9,7 @@ const rust_version = `nightly-${nightly_version}`;
 const patch_crates_io = '[patch.crates-io]';
 
 const name = 'helios';
-const helios_checksum = '8da632f8f2902a0095bc1fcd6e1a1008950c7002';
+const helios_checksum = 'ff800484bc0cb4d5ea55979da235f555eee1c90c';
 
 // IMPORTANT! Must point to a version which is identical to the version of openssl-src referenced by helios' Cargo.lock.
 // Else, the patch will be ignored.
@@ -33,12 +33,14 @@ const openssl_sys = path.resolve(rust_openssl, 'openssl-sys');
 const libs = path.resolve(android, 'src', 'main', 'jniLibs');
 
 const arm64_v8a = path.resolve(libs, 'arm64-v8a');
+
+// TODO: enable these targets
 //const armeabi_v7a = path.resolve(libs, 'armeabi-v7a');
 //const x86 = path.resolve(libs, 'x86');
 const x86_64 = path.resolve(libs, 'x86_64');
 
 const getSelectedNetwork = () => [
-  '    let selectedNetwork = match network.as_str() {',
+  '    let selected_network = match network.as_str() {',
   '      "MAINNET" => networks::Network::MAINNET,',
   '      "GOERLI" => networks::Network::GOERLI,',
   '      _ => panic!("Unknown network!"),',
@@ -165,7 +167,16 @@ abstract class HeliosFactory {
     fs.writeFileSync(
       helios_toml,
       [
-        ...fs.readFileSync(helios_toml, 'utf-8').split('\n'),
+        ...fs
+          .readFileSync(helios_toml, 'utf-8')
+          .split('\n')
+          .filter((line: string) => {
+            // This line is incompatible; results in missing executables.
+            // https://github.com/a16z/helios/commit/2e6b948c8f8ff4d8283c774e797ff0a4dbb55c41
+            if (line === 'default-members = ["cli"]') return false;
+
+            return true;
+          }),
         '',
         '[lib]',
         `name = "${name}"`,
@@ -216,7 +227,7 @@ class AppleHeliosFactory extends HeliosFactory {
       'use std::ffi::{CStr, CString};',
       '',
       'use ::client::{database::FileDB, Client, ClientBuilder};',
-      'use ::config::{CliConfig, Config, networks};',
+      'use ::config::{CliConfig, Config, networks, checkpoints};',
       '',
       'use std::path::PathBuf;',
       '',
@@ -236,8 +247,10 @@ class AppleHeliosFactory extends HeliosFactory {
       '      rpc_port: f64,',
       '      network: String,',
       '      data_dir: String,',
+      '      checkpoint: String,',
       '    );',
       '    async fn helios_shutdown(&mut self);',
+      '    async fn helios_fallback_checkpoint(&mut self, network: String) -> String;',
       '  }',
       '}',
       '',
@@ -256,16 +269,18 @@ class AppleHeliosFactory extends HeliosFactory {
       '    rpc_port: f64,',
       '    network: String,',
       '    data_dir: String,',
+      '    checkpoint: String,',
       '  ) {',
       ...getSelectedNetwork(),
       '    let mut client: Client<FileDB> = ClientBuilder::new()',
-      '      .network(selectedNetwork)',
+      '      .network(selected_network)',
       '      .execution_rpc(&untrusted_rpc_url)',
       '      .consensus_rpc(&consensus_rpc_url)',
       '      .data_dir(PathBuf::from(&data_dir))',
       '      .rpc_port((rpc_port as i16).try_into().unwrap())',
+      '      .checkpoint(&checkpoint)',
       // TODO: to boolean prop
-      '      .load_external_fallback()',
+      //'      .load_external_fallback()',
       '      .build()',
       '      .unwrap();',
       '',
@@ -279,6 +294,10 @@ class AppleHeliosFactory extends HeliosFactory {
       '    }',
       '    self.client = None;',
       '    return;',
+      '  }',
+      '  async fn helios_fallback_checkpoint(&mut self, network: String) -> String {',
+      ...getSelectedNetwork(),
+      '    return format!("{:#x}", checkpoints::CheckpointFallback::new().build().await.unwrap().fetch_latest_checkpoint(&selected_network).await.unwrap())',
       '  }',
       '',
       '}',
@@ -438,8 +457,8 @@ ${fs
 class AndroidHeliosFactory extends HeliosFactory {
   static ANDROID_LIBRARY_LUT = {
     'aarch64-linux-android': arm64_v8a,
-    // TODO: Enable these targets.
     //'armv7-linux-androideabi': armeabi_v7a,
+    // TODO: Enable these targets.
     //'i686-linux-android': x86,
     'x86_64-linux-android': x86_64,
   };
@@ -572,7 +591,7 @@ class AndroidHeliosFactory extends HeliosFactory {
       'pub use crate::java_glue::*;',
       '',
       'use ::client::{database::FileDB, Client, ClientBuilder};',
-      'use ::config::{CliConfig, Config, networks};',
+      'use ::config::{CliConfig, Config, networks, checkpoints};',
       '',
       'use tokio::runtime::Runtime;',
       'use std::{thread, time::Duration};',
@@ -601,17 +620,19 @@ class AndroidHeliosFactory extends HeliosFactory {
       '    rpc_port: f64,',
       '    network: String,',
       '    data_dir: String,',
+      '    checkpoint: String,',
       '  ) {',
       ...getSelectedNetwork(),
       '    self.runtime.block_on(async {',
       '      let mut client: Client<FileDB> = ClientBuilder::new()',
-      '        .network(selectedNetwork)',
+      '        .network(selected_network)',
       '        .consensus_rpc(&consensus_rpc_url)',
       '        .execution_rpc(&untrusted_rpc_url)',
       '        .data_dir(PathBuf::from(&data_dir))',
+      '      .checkpoint(&checkpoint)',
       '        .rpc_port((rpc_port as i16).try_into().unwrap())',
       // TODO: to boolean prop
-      '        .load_external_fallback()',
+      //'        .load_external_fallback()',
       '        .build()',
       '        .unwrap();',
       '',
@@ -629,6 +650,14 @@ class AndroidHeliosFactory extends HeliosFactory {
       '      return;',
       '    })',
       '  }',
+      '  #[generate_interface]',
+      '  fn helios_fallback_checkpoint(&mut self, network: String) -> String {',
+      '    return self.runtime.block_on(async {',
+      ...getSelectedNetwork(),
+      '      return format!("{:#x}", checkpoints::CheckpointFallback::new().build().await.unwrap().fetch_latest_checkpoint(&selected_network).await.unwrap())',
+      '    })',
+      '  }',
+
       '}',
     ];
   }

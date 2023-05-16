@@ -72,15 +72,15 @@ You can also define a weak subjectivity `checkpoint` using the `checkpoint` para
 ```typescript
 import { fallbackCheckpoint, start } from 'react-native-helios';
 
-const network = Network.GOERLI;
-const checkpoint = await fallbackCheckpoint({network});
+const params: StartParams = {...};
+const checkpoint = await fallbackCheckpoint(params);
 
-await start({checkpoint: fallbackCheckpoint, ...extras});
+await start({ ...params, checkpoint: fallbackCheckpoint });
 ```
 
 > **Warning**
 >
-> If a `checkpoint` is not manually specified, the `fallbackCheckpoint` will be used. Please be aware of the [__potential dangers__](https://github.com/a16z/helios#using-helios-as-a-library) of the implicit trust assumptions in doing so.
+> If a `checkpoint` is not manually specified, the `fallbackCheckpoint` will be used. Please be aware of the [__potential dangers__](https://github.com/a16z/helios#using-helios-as-a-library) in the implicit trust assumptions of doing so.
 
 ## Building from source 🏗
 

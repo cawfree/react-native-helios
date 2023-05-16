@@ -32,7 +32,8 @@ class Helios: NSObject {
     pPort: Double,
     pUntrustedRpcUrl: String,
     pConsensusRpcUrl: String,
-    pNetwork: String
+    pNetwork: String,
+    pCheckpoint: String
   ) async throws {
     try await shouldStopHelios(pPort: pPort);
       
@@ -47,7 +48,8 @@ class Helios: NSObject {
       pConsensusRpcUrl,
       pPort,
       pNetwork,
-      dataDir
+      dataDir,
+      pCheckpoint
     );
       
     INSTANCES[key] = rustApp;
@@ -81,12 +83,14 @@ class Helios: NSObject {
       let consensus_rpc_url = params["consensus_rpc_url"];
       let rpc_port = params["rpc_port"];
       let network = params["network"];
+      let checkpoint = params["checkpoint"];
       
       try await self.shouldStartHelios(
         pPort: (rpc_port as! Double),
         pUntrustedRpcUrl: (untrusted_rpc_url as! String),
         pConsensusRpcUrl: (consensus_rpc_url as! String),
-        pNetwork: (network as! String)
+        pNetwork: (network as! String),
+        pCheckpoint: (checkpoint as! String)
       );
       
       return;
@@ -96,7 +100,6 @@ class Helios: NSObject {
   @available(iOS 13.0.0, *)
   @objc func shutdown(_ params:NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) -> Void {
     resolveOrReject(resolve: resolve, reject: reject) {
-      let rpc_port = params["rpc_port"];
       try await self.shouldStopHelios(pPort: params["rpc_port"] as! Double);
       return;
     }

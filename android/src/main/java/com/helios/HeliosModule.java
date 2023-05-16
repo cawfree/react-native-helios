@@ -58,7 +58,8 @@ public class HeliosModule extends ReactContextBaseJavaModule {
     final String pConsensusRpcUrl,
     final Double pPort,
     final String pNetwork,
-    final String pDataDir
+    final String pDataDir,
+    final String pCheckpoint
   ) {
     final String key = getKey(pPort);
 
@@ -69,7 +70,8 @@ public class HeliosModule extends ReactContextBaseJavaModule {
       pConsensusRpcUrl,
       pPort,
       pNetwork,
-      pDataDir
+      pDataDir,
+      pCheckpoint
     );
 
     INSTANCES.put(key, helios);
@@ -118,7 +120,8 @@ public class HeliosModule extends ReactContextBaseJavaModule {
           pReadableMap.getString("consensus_rpc_url"),
           pReadableMap.getDouble("rpc_port"),
           pReadableMap.getString("network"),
-          dataDir
+          dataDir,
+          pReadableMap.getString("checkpoint")
         );
       }
     );

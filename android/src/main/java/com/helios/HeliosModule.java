@@ -138,4 +138,19 @@ public class HeliosModule extends ReactContextBaseJavaModule {
     );
   }
 
+  @ReactMethod
+  public final void fallbackCheckpoint(final ReadableMap pReadableMap, final Promise pPromise) {
+    final Activity lActivity = getCurrentActivity();
+
+    EXECUTOR.execute(() -> {
+      try {
+        final String fallbackCheckpoint = new Helios().heliosFallbackCheckpoint(pReadableMap.getString("network"));
+        lActivity.runOnUiThread(() -> pPromise.resolve(fallbackCheckpoint));
+      } catch (Exception e) {
+        e.printStackTrace();
+        lActivity.runOnUiThread(() -> pPromise.reject(e));
+      }
+    });
+  }
+
 }

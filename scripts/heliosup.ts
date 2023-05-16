@@ -9,7 +9,9 @@ const rust_version = `nightly-${nightly_version}`;
 const patch_crates_io = '[patch.crates-io]';
 
 const name = 'helios';
-const helios_checksum = 'ff800484bc0cb4d5ea55979da235f555eee1c90c';
+//const helios_checksum = 'ff800484bc0cb4d5ea55979da235f555eee1c90c'; // TODO: desired
+
+const helios_checksum = '2e6b948c8f8ff4d8283c774e797ff0a4dbb55c41'; // latest
 
 // IMPORTANT! Must point to a version which is identical to the version of openssl-src referenced by helios' Cargo.lock.
 // Else, the patch will be ignored.
@@ -165,7 +167,16 @@ abstract class HeliosFactory {
     fs.writeFileSync(
       helios_toml,
       [
-        ...fs.readFileSync(helios_toml, 'utf-8').split('\n'),
+        ...fs.readFileSync(helios_toml, 'utf-8')
+          .split('\n')
+          .filter((line: string) => {
+
+            // This line is incompatible; results in missing executables.
+            // https://github.com/a16z/helios/commit/2e6b948c8f8ff4d8283c774e797ff0a4dbb55c41
+            if (line === 'default-members = ["cli"]') return false;
+
+            return true;
+          }),
         '',
         '[lib]',
         `name = "${name}"`,
